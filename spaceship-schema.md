@@ -1,41 +1,92 @@
 # spaceship
 
-## schema of spaces
+## schema
 
-### travelers, residents
-
-travelers and residents pilot spaceships. they transmit sigils that identify
-their crafts uniquely whenever they visit orbitals in different galaxies--but
-they choose what to send and where to send it.
-
-### records
-
-a record is a semantically unified, sequenced data set that is useful to
-spaceship pilots. it might be a message thread, a folder of data, or other
-binary collection (like a music album).
-
-key characteristics:
-
-- created by orbital resident
-- weakly unified ordering
-- separation from other records in orbitals for ease of ordering/digestion
-
-### orbitals
-
-**orbitals** are space colonies.
+### travelers, pilots, residents
 
 **key characteristics:**
 
-- they are protocol agnostic--any decentralised galaxy can support orbitals, as
-  long as it allows travelers to travel, participate, and communicate in the
-  above decentralised manner.
-- any traveler can establish an orbital
+- travelers are people (agnostic to embodiment)
+- travelers operate spaceships
+- travelers are identified by transmitted IDs (e.g. public keys) whose
+  transmission they control
+
+travelers and residents pilot spaceships. they transmit messages that identify
+their crafts uniquely whenever they visit orbitals in different galaxies--but
+they choose what to send and where to send it.
+
+### spaceships
+
+a spaceship is any networked device capable of galactic communication.
+
+**key characteristics:**
+
+- spaceships are the method by which travelers interact with cypherspace. they
+  are the embodiment of a traveler
+- spaceships have an obligation to relay or mirror records they receive to other
+  parts of the galaxy.
 
 **design concepts:**
 
-- orbitals as space to be visited/accessed from
+- spaceships as vehicles of thought, as in
+  [The Fountain](http://wallpoper.com/images/00/39/23/82/the-fountain_00392382.jpg)
+
+### records
+
+a record is a semantically linked, sequenced data set that is useful to
+spaceship pilots. it might be a message thread, a folder of data, or media
+collection (such as a music album).
+
+**key characteristics:**
+
+- created by an orbital resident
+- unified by weak ordering
+- weak separation from other records in orbitals for ease of ordering/digestion
+
+**design concepts:**
+
+- playlists (mixtapes, albums)
+- message threads (conversations, diaries, notes)
+- stores of treasure (curated files, libraries)
+- acts of theater (monologues, dialogues, and so on)
+- serialised and one-off productions (webcomics, video dramas, zines)
+
+### orbitals
+
+**key characteristics:**
+
+- bounded, autonomous spaces of communication
+- boundaries established through cryptographic measures
+- policies available to modification by residents, if desired
+- protocol agnostic
+- no barrier to creation by any traveler
+
+**orbitals** are space colonies. from an social standpoint, they serve as
+bounded, autonomous territories. From an engineering standpoint, this simply
+means that they are a set of autonomously determined recipients and policies for
+communication.
+
+an orbital's boundaries are established through cryptographic measures. by
+default, records are encrypted with the public keys of, or keys generated from
+the public keys of an orbital's residents.
+
+these boundaries are under the control of residents--an orbital's creator
+establishes the initial policies of an orbital, but may make them open to change
+by the residents themselves.
+
+orbitals are protocol agnostic--any decentralised galaxy can support orbitals,
+as long as it allows travelers to travel them, participate, and communicate in
+the above self-determined manner.
+
+any traveler can establish an orbital, simply by propagating an identifier and
+communicating a roster of invitees or residents. there is no barrier to
+creation.
+
+**design concepts:**
+
+- orbitals as space of recorded communication to be visited/accessed, from
   [analogue: a hate story](http://ahatestory.com/)
-- orbitals as existentially independent but communicatively collaborative space
+- orbitals as nominally independent but communicatively collaborative space
   colonies, a la
   [iain banks' Culture novels](https://en.wikipedia.org/wiki/Orbital_(The_Culture))
   ([image 1](http://r.duckduckgo.com/l/?kh=-1&uddg=http%3A%2F%2Fwww.nss.org%2Fsettlement%2Fcalendar%2F2009%2FGoetzScheuermann-oneillcylinder-650.jpg))
@@ -43,26 +94,24 @@ key characteristics:
 
 ### galaxies
 
+**key characteristics:**
+
+- independence from centralised, terrestrial-bound and mapped networks
+- structural protections against out-of-galaxy actors, such as
+  denial-of-service, attacks on protocols
+- no essential topographic borders: free entry to any spaceship
+
 galaxies are the main sources of mass (things that are interacted with by
 spaceships) in the decentralised universe.
 
 galaxies are maintained by decentralised electronic infrastructure (at least
-when this draft was produced). if your infrastructure packs users into
-centralised accounts, centralised activity, or prevents them from controlling
-what spaces they inhabit and establish, it's not a galaxy--it's just a locked
-chamber.
+when this draft was produced). it's worth clarifying what they are not: if your
+infrastructure packs users into centralised accounts, centralised activity, or
+prevents them from controlling what spaces they inhabit and establish, it's not
+a galaxy--it's just a locked chamber.
 
-**key characteristics:**
 
-- independence from centralised, terrestrial-bound and mapped networks
-- cryptographic protections against out-of-galaxy actors
-- no space-like borders: free entry to any spaceship
-
-### spaceships
-
-a spaceship is any networked device capable of galactic communication.
-
-## communication models
+## narratives of communication
 
 ### orbital
 
@@ -84,7 +133,7 @@ input to orbital policy, appearance, and can create logs.
 
 drawing from
 [CE 2010s western queer terminology]l(http://www.musedmagonline.com/2015/04/coming-semantics-reinforce-heterosexism-queer-people-color/),
-a traveller (see below) may be invited in into the context or participatory
+a traveller (see below) may be **invited in** to the context or participatory
 space of an orbital. in other words, they may be invited to some or all of the
 records of an orbital. this involves one or more residents re-encrypting a
 record (up to some quota) with the key of an invited traveller.
@@ -99,11 +148,13 @@ socially private, not technologically so.
 
 ### galaxy
 
-spaceships may only be travelling one galaxy at a time, or otherwise limit the
-amount of replication they do for each galaxy. in general, terrestrial topology
-should not privilege galactic topology--every orbital's traffic should be
-replicated by every other orbital if possible. in other words, discoverability
-and replication should be coupled, even if messages are private to each orbital.
+depending on use, spaceships might only travel one galaxy at a time, or
+otherwise limit the amount of traffic they replicate for each galaxy. as a
+general rule, terrestrial topology should not be privileged above galactic
+topology--every orbital's traffic should be replicated by every other orbital
+and spaceship if possible, regardless of stake, interest, or engagement with the
+content. in other words, discoverability and replication should be coupled, even
+if messages are private to each orbital.
 
 saying that, discoverability should also be manageable. orbitals may be
 hyperlocal in some space; a spaceship should be able to travel from such
