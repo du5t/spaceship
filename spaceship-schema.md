@@ -99,6 +99,8 @@ creation.
   [iain banks' Culture novels](https://en.wikipedia.org/wiki/Orbital_(The_Culture))
   ([image 1](http://r.duckduckgo.com/l/?kh=-1&uddg=http%3A%2F%2Fwww.nss.org%2Fsettlement%2Fcalendar%2F2009%2FGoetzScheuermann-oneillcylinder-650.jpg))
   ([image 2](http://settlement.arc.nasa.gov/Kalpana/Kalpana-43-Aa2-1920.jpg))
+- IRC channels and their hierarchies of
+  [user modes](https://www.alien.net.au/irc/usermodes.html)
 
 ### galaxies
 
