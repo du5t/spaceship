@@ -24,7 +24,13 @@ mechanisms and machinery. basic communication and interaction over astronomical
 distances, without a governing central authority, are also imaginable as the
 lifeblood of space-based society.
 
-also, space is really cool.
+it's also a simple metaphor for judging approaches in the long-term. a
+centralised communication system that finds ways of locking you and your data in
+forever is like a black hole. an endless succession of non-interoperable
+alternative networks and secure messaging systems resembles, in the extreme,
+[an over-expanded universe where no one can talk to anyone else](https://en.wikipedia.org/wiki/Big_Rip)
+
+and anyway, space is really cool.
 
 ### the design is abstract and confusing...
 
