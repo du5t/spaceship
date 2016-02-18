@@ -28,7 +28,7 @@ it's also a simple metaphor for judging approaches in the long-term. a
 centralised communication system that finds ways of locking you and your data in
 forever is like a black hole. an endless succession of non-interoperable
 alternative networks and secure messaging systems resembles, in the extreme,
-[an over-expanded universe where no one can talk to anyone else](https://en.wikipedia.org/wiki/Big_Rip)
+[an over-expanded universe where no one can talk to anyone else](https://en.wikipedia.org/wiki/Big_Rip).
 
 and anyway, space is really cool.
 
@@ -48,4 +48,6 @@ or pull request if you think something is missing or needs changing.
   building blocks of the design and how they relate.
 - [spaceship-engines](./spaceship-engines.md): a document describing the basic
   "API-like" functions needed to realise the schema.
-- [ ] TODO: a reference implementation of the above
+- [ ] TODO: reference engine implementations in:
+    - [ ] swarmbot
+    - [ ] scuttlebot
