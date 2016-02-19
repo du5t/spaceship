@@ -11,8 +11,12 @@ what we present here is a limited set of functions a codebase should provide to
 properly function as a spaceship engine. not all of these functions need
 implementing on their own--many of them are easily realised as compositions.
 
-remarks: all spaceship identifiers (public keys) must be signed with the
-appropriate private key or similar attestation, for every request.
+general remarks:
+
+- all spaceship identifiers (public keys) must be signed with the appropriate
+  private key or similar attestation, for every request.
+- where a function returns no output (for example, if it is used to modify
+  galactic or local state), it's best to return information about the result.
 
 ## engine spec
 
@@ -84,12 +88,19 @@ identifying data should be stored in
   links, and serialised content.
 - output: null
 
+creates a record. a record is a performative atom for spaceships--it's a single
+communication at an experiential level. records are non-ephemeral. they may be
+linked to orbitals, encrypted to orbital residents or other recipients, or
+broadcast galaxywide. their position in the galaxy is thus expressed by their
+linkage.
+
 #### editRecord
 
 - input: a link to a record to be edited, and serialised content.
 - output: null
 
-submits a record linked to an already-existing one.
+submits a record linked to an already-existing one, with an explicit identifier
+indicating that it's an edit.
 
 throws an error if the existing record is not known to the spaceship.
 
@@ -98,6 +109,7 @@ throws an error if the existing record is not known to the spaceship.
 - a record link is just the key of a record, namely, a reference.
 - by convention, an edit of zero-length can be interpreted as a record's
   deletion.
+- edits may be better encoded as diffs, depending on their content type.
 - any ship may submit record edits. how they are viewed and processed is up to
   interface convention--an orbital may establish itself as a wiki, and instruct
   spaceships to accept edits from any pilot. a spaceship may also unilaterally
@@ -139,20 +151,48 @@ example set of keys:
 - input: an orbital identifier
 - output: an enumerable of record keys
 
+this function performs the task polls the orbital for records
+
 #### hailOrbital
 
 - input: a signed spaceship identifier
 - output: one of `"welcome"` or `"invitation required"`.
+
+signals to an orbital that a spaceship and pilot would like to enter the
+orbital.
+
+orbital entry may consist of the following things, in order of increasing
+commitment:
+
+1. orbital residents involving the entrant in orbital record traffic (only
+   meaningful if traffic routing in the current galaxy has any
+   [structural concept of spatial priority](https://en.wikipedia.org/wiki/Net_neutrality)).
+2. orbital residents adding (one of) the entrant's public keys to the list of
+   orbital recipients, allowing the entrant to read records posted thereafter.
+3. orbital residents doing the computational work of re-encrypting records
+   reaching into the past with the entrant's public key, allowing the entrant
+   participation in the orbital's past.
+4. political enfranchisement in the orbital, if there is any to be had
+5. and so on, and so on...
+
+this function is the intransitive counterpart to `inviteTraveller`
 
 #### inviteTraveller
 
 - input: a spaceship identifier signed with the key of a resident.
 - output: null
 
+transitive counterpart to `hailOrbital`; expresses endorsement for entry by an
+orbital resident. has similar effects.
+
 #### emigrateOrbital
 
 - input: a spaceship identifier signed with its own key.
 - output: null
+
+requests that an orbital's residents roll back the entry steps outlined above.
+
+intransitive counterpart to `deportResident`.
 
 #### deportResident
 
@@ -160,8 +200,15 @@ example set of keys:
   the orbital (see above)
 - output: null
 
+transitive counterpart to `emigrateOrbital`; expresses endorsement for the
+expulsion of a resident from an orbital.
+
 #### notes
 
+- hailing an orbital is a good way to check for its existence before trying to
+  create one with similar existential parametres.
+- emigrating an orbital is a good way to repudiate a public key, if the
+  identifier has been compromised.
 - orbitals are just implicit collections of records, established by
   (cryptographically secured) recipient lists or just a single reference to an
   orbital.
