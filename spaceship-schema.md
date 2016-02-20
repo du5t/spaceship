@@ -2,6 +2,13 @@
 
 ## schema
 
+- pilots/travellers/residents
+- spaceships
+- records/logs
+- orbitals
+- galaxies
+- cypherspace
+
 ### travellers, pilots, residents
 
 travellers are the people of cypherspace--its performative atoms.
@@ -73,7 +80,8 @@ collection (such as a music album).
 bounded, autonomous territories. from an engineering standpoint, this simply
 means that they are a set of autonomously determined recipients and policies for
 communication. in other words, they are implicit stores of records. you can
-think of them as generalisations of "channels" in a chat channel.
+think of them as generalisations of "channels" in IRC, or "circles"
+of googleplus.
 
 an orbital's boundaries are established through cryptographic measures. by
 default, records are encrypted with the public keys of, or keys generated from
