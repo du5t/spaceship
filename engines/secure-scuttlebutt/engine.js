@@ -25,10 +25,9 @@ export function createIdentifierSync(ephemeral = false) {
   try {
     const newKey = ssbkeys.generate()
     if (!ephemeral) {
-      const path = xdgBasedir.config
-              .concat(subdirName)
-              .concat(newKey.id)
-              .concat('json')
+      const path = utils.resolveConfigPath(null, subdirName)
+                        .concat(newKey.id)
+                        .concat('json')
       jsonfile.writeFileSync(path, newKey, {mode: '660'})
     }
     return newKey    
