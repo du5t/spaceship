@@ -70,9 +70,10 @@ collection (such as a music album).
 - no barrier to creation by any traveler
 
 **orbitals** are space colonies. from an social standpoint, they serve as
-bounded, autonomous territories. From an engineering standpoint, this simply
+bounded, autonomous territories. from an engineering standpoint, this simply
 means that they are a set of autonomously determined recipients and policies for
-communication. in other words, they are implicit stores of records.
+communication. in other words, they are implicit stores of records. you can
+think of them as generalisations of "channels" in a chat channel.
 
 an orbital's boundaries are established through cryptographic measures. by
 default, records are encrypted with the public keys of, or keys generated from
