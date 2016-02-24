@@ -4,68 +4,57 @@
  * 
  */
 
-var utils         = require('./some-utils')
-const subdirName  = 'spaceship/ssb'
-var fs            = require('fs')
-var jsonfile      = require('jsonfile')
-var VerEx         = require('verbal-expressions')
-var parallel      = require('run-parallel')
+var utils              = require('../some-utils')
+const subdirName       = 'spaceship/ssb'
+var fs                 = require('fs')
+var jsonfile           = require('jsonfile')
+var VerEx              = require('verbal-expressions')
+var parallel           = require('run-parallel')
+var uuid               = require('uuid')
 
-var ssbClient     = require('ssb-client')
-var ssbkeys       = require('ssb-keys')
-var ssbMsgLib     = require('ssb-msgs')
-var ssbref        = require('ssb-ref')
+var ssbClient          = require('ssb-client')
+var ssbkeys            = require('ssb-keys')
+var ssbMsgLib          = require('ssb-msgs')
+var ssbref             = require('ssb-ref')
+var patchworkThreadLib = require('patchwork-threads')
 
 /* 
  * pilot/spaceship functions
  * 
 */
-export function createIdentifierSync(ephemeral = false) {
-// don't depend on sync fallbacks, i might just scrap them
-  try {
-    const newKey = ssbkeys.generate()
-    if (!ephemeral) {
-      const path = utils.resolveConfigPath(null, subdirName)
-                        .concat(newKey.id)
-                        .concat('json')
-      jsonfile.writeFileSync(path, newKey, {mode: '660'})
-    }
-    return newKey    
-  } catch(err) {
-    throw err
+exports.createIdentifier = function(ephemeral, path, callback) {
+  if (typeof ephemeral === 'function') {
+    callback = ephemeral
+    ephemeral = false
+  }
+  if (typeof path === 'function') {
+    callback = path
+    path = utils.resolveConfigPath(null, subdirName)
+  }
+  if (ephemeral) {
+    callback(null, ssbkeys.generate('ed25519'))
+  } else {
+
+    const someUser = uuid.v4().concat('.json')
+    ssbkeys.create(path.concat(someUser), 'ed25519', callback)
   }
 }
 
-export function createIdentifier(ephemeral = false, callback) {
-  ssbkeys.create(function(err, newKey) {
-    if (err) callback (err)
-    else if (!ephemeral) {
-      const path = utils.resolveConfigPath(null, subdirName)
-                        .concat(newKey.id)
-                        .concat('.json')
-      jsonfile.writeFile(path, newKey, {mode: '660'}, function(err) {
-        if (err) callback(err)
-        else callback(null, newKey)
-      })
-    }
-    else callback(null, newKey)
-  })
-}
-
-export function listIdentifiers(configPath, callback) {
+exports.listIdentifiers = function(configPath, callback) {
   // callback to do something with them
   const path = utils.resolveConfigPath(configPath, subdirName)
   const jsonEx = VerEx().find('.json').endOfLine()
+
   fs.readdir(path, function(err, files) {
     if (err) callback(err)
     const idFileNames = files
             .filter(function(fname) { return jsonEx.test(fname) })
-            .map(function(jsonFile) { 
+            .map(function(jsonFile) {
               return function(callback) {
                 return jsonfile.readFile(jsonFile, callback)
               }
             })
-
+    
     parallel(idFileNames, function(err, keys) {
       if (err) callback(err)
       else callback(null, keys)
@@ -73,7 +62,7 @@ export function listIdentifiers(configPath, callback) {
   })
 }
 
-export function destroyIdentifier(configPath, id, errCallback) {
+exports.destroyIdentifier = function(configPath, id, errCallback) {
   // be careful testing this one! backup your IDs
   const path   = utils.resolveConfigPath(configPath)
   const jsonEx = VerEx().find(id.concat('.json')).endOfLine()
@@ -81,15 +70,15 @@ export function destroyIdentifier(configPath, id, errCallback) {
     if (err) errCallback(err)
     const idFile = files.find(function(fname) { return jsonEx.test(fname) })
     fs.unlink(idFile, errCallback)
-  }
+  })
 }
 
-export function entombData() {
-  
+exports.entombData = function() {
+  return null; 
 }
 
-export function importData() {
-  
+exports.importData = function() {
+  return null;
 }
 
 /*
@@ -99,7 +88,7 @@ export function importData() {
  * schema. see below for what that looks like
  * 
  */
-export function createRecord(orbital, type, links, content, callback) {
+exports.createRecord = function(orbital, type, links, content, callback) {
   var ssbRecord = {}
   ssbRecord.type    = type
   ssbRecord.links   = { links }
@@ -120,7 +109,7 @@ export function createRecord(orbital, type, links, content, callback) {
   })
 }
 
-export function editRecord(links, origMsg, revision, callback) {
+exports.editRecord = function(links, origMsg, revision, callback) {
   var ssbRecord = {}
   ssbRecord.type     = 'post-edit'
   ssbRecord.links    = { links }
@@ -145,7 +134,7 @@ export function editRecord(links, origMsg, revision, callback) {
  * orbital functions
  * 
  */
-export function createOrbital(name, invitees, policy, callback) {
+exports.createOrbital = function(name, invitees, policy, callback) {
   const { announce, openResidency, governmentType, dictator } = policy
   var ssbOrbital = {}
   if (announce === undefined || announce === true) {
@@ -184,17 +173,48 @@ export function createOrbital(name, invitees, policy, callback) {
   }
 }
 
-export function viewOrbital(orbitalID, callback) {
+exports.viewOrbital = function(orbitalID, callback) {
   /* 
    * fetches all of the record heads in an orbital for easy viewing
    * 
    */
+  ssbClient(function(err, sbot) {
+    sbot.relatedMessages(
+      {id: orbitalID, count: true}, 
+      function(err, orbitalWithRelations) {
+        var recordRootGetters = orbitalWithRelations.related
+              .filter(function (relatedMsg) {
+                return relatedMsg.content.value.type === 'record'
+              })
+              .map(function(relatedRecord) {
+                return function(callback) {
+                  patchworkThreadLib.fetchThreadRootID(sbot, relatedRecord, callback)
+                }
+              })
+        parallel(recordRootGetters, function(err, rootIDs) {
+          if (err) callback(err)
+          else {
+            const uniqIDs = new Set(rootIDs.slice())
+            // get message for each
+            uniqIDs.map(function(recordID) {
+              
+            })
+            
+            // sort by date
 
+            // callback
+            callback(null, recordRoots)
+          }
+        })
+      })
+
+  })
   
 }
 
-export function hailOrbital(orbital, intro, callback) {
-  /* in ssb's case, it seems good enough to hit everyone with a hail message
+exports.hailOrbital = function(orbital, intro, callback) {
+  /* in ssb's case, it seems good enough to hit everyone in the orbital with a
+   * hail message
    * 
    * only works on discoverable orbitals (for good reason)
    */
@@ -210,7 +230,7 @@ export function hailOrbital(orbital, intro, callback) {
   })
 }
 
-export function inviteTraveller(traveller, orbital, intro, callback) {
+exports.inviteTraveller = function(traveller, orbital, intro, callback) {
   var invite     = {}
   invite.type    = 'invite'
   invite.recps   = orbital.residents
@@ -223,7 +243,7 @@ export function inviteTraveller(traveller, orbital, intro, callback) {
   })
 }
 
-export function emigrateOrbital(orbital, outro, callback) {
+exports.emigrateOrbital = function(orbital, outro, callback) {
   /* leave a message letting all the other ships in the orbital know you're
    * leaving, so they can strip your ID from traffic
    * 
@@ -240,7 +260,7 @@ export function emigrateOrbital(orbital, outro, callback) {
   })
 }
 
-export function deportResident(traveller, orbital, justification, callback) {
+exports.deportResident = function(traveller, orbital, justification, callback) {
   var rejection     = {}
   rejection.type    = 'rejection'
   rejection.recps   = orbital.residents
@@ -258,7 +278,7 @@ export function deportResident(traveller, orbital, justification, callback) {
  * 
  */
 
-export function enterGalaxy(keyLocation, botInfo) {
+exports.enterGalaxy = function(keyLocation, botInfo) {
   /* ssb-client expects to have a scuttlebot running someplace it can reach. all
    interaction with it is through callbacks.
 
@@ -281,14 +301,16 @@ export function enterGalaxy(keyLocation, botInfo) {
    TODO replace all of this with something like RPC on scuttlebot-views
    
    */
+//  if (botInfo )
+
 }
 
-export function leaveGalaxy() {
+exports.leaveGalaxy = function(childProc, shipID) {
   /* 
    following after above cases:
 
    1) bot was started in spaceship -> halt process, return ok
-
+   
    2) bot running, plural keys -> ?? how does sbot treat this case?
 
    3) bot running independently, default key -> do nothing, spaceship never had
@@ -297,5 +319,11 @@ export function leaveGalaxy() {
    TODO replace as above with RPC on scuttlebot-views
    
    */
+  if (typeof childProc !== undefined) {
+    
+  } else if (typeof shipID !== undefined) {
 
+  } else {
+    
+  }
 }
