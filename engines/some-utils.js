@@ -19,8 +19,11 @@ exports.resolveConfigPath = function(configPath, subdirName) {
   }
 
   var path
-  if (typeof configPath === 'string') path = configPath
-  else path = xdgBasedir.config.concat('/').concat(subdirName)
+  if (typeof configPath === 'string') path = configPath.concat(subdirName)
+  else path = xdgBasedir.config
+                        .concat('/')
+                        .concat(subdirName)
+                        .concat('/')
   return path
 }
 

@@ -3,9 +3,9 @@
  * sbot engine. allows a spaceship to travel the secure-scuttlebutt galaxy.
  * 
  */
-
+'use strict'
 var utils              = require('../some-utils')
-const subdirName       = 'spaceship/ssb'
+const subdirName       = 'spaceship/ssb/'
 var fs                 = require('fs')
 var jsonfile           = require('jsonfile')
 var VerEx              = require('verbal-expressions')
@@ -23,20 +23,24 @@ var patchworkThreadLib = require('patchwork-threads')
  * 
 */
 exports.createIdentifier = function(ephemeral, path, callback) {
+  let basepath = ''
   if (typeof ephemeral === 'function') {
     callback = ephemeral
     ephemeral = false
   }
   if (typeof path === 'function') {
     callback = path
-    path = utils.resolveConfigPath(null, subdirName)
+  } else if (typeof path === 'string') {
+    basepath = path.concat(subdirName)
+  } else {
+    basepath = utils.resolveConfigPath(null, subdirName)
   }
+  
   if (ephemeral) {
     callback(null, ssbkeys.generate('ed25519'))
   } else {
-
     const someUser = uuid.v4().concat('.json')
-    ssbkeys.create(path.concat(someUser), 'ed25519', callback)
+    ssbkeys.create(basepath.concat(someUser), 'ed25519', callback)
   }
 }
 
@@ -51,7 +55,7 @@ exports.listIdentifiers = function(configPath, callback) {
             .filter(function(fname) { return jsonEx.test(fname) })
             .map(function(jsonFile) {
               return function(callback) {
-                return jsonfile.readFile(jsonFile, callback)
+                return ssbkeys.load(path.concat(jsonFile), callback)
               }
             })
     
@@ -64,7 +68,9 @@ exports.listIdentifiers = function(configPath, callback) {
 
 exports.destroyIdentifier = function(configPath, id, errCallback) {
   // be careful testing this one! backup your IDs
-  const path   = utils.resolveConfigPath(configPath)
+
+  if (!id) throw new Error('no key ID passed.')
+  const path   = utils.resolveConfigPath(configPath, subdirName)
   const jsonEx = VerEx().find(id.concat('.json')).endOfLine()
   fs.readdir(path, function(err, files) {
     if (err) errCallback(err)
