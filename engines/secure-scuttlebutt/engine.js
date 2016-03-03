@@ -40,7 +40,16 @@ exports.createIdentifier = function(ephemeral, path, callback) {
     callback(null, ssbkeys.generate('ed25519'))
   } else {
     const someUser = uuid.v4().concat('.json')
-    ssbkeys.create(basepath.concat(someUser), 'ed25519', callback)
+    const localPath = basepath.concat(someUser)
+    ssbkeys.create(
+      localPath, 'ed25519', function(err, newKey) {
+        if (err) callback (err)
+        else {
+          callback(null, Object.assign(
+            {}, newKey, { localPath }
+          ))
+        }
+      })
   }
 }
 
@@ -51,31 +60,44 @@ exports.listIdentifiers = function(configPath, callback) {
 
   fs.readdir(path, function(err, files) {
     if (err) callback(err)
-    const idFileNames = files
-            .filter(function(fname) { return jsonEx.test(fname) })
-            .map(function(jsonFile) {
-              return function(callback) {
-                return ssbkeys.load(path.concat(jsonFile), callback)
-              }
-            })
-    
-    parallel(idFileNames, function(err, keys) {
-      if (err) callback(err)
-      else callback(null, keys)
-    })
+    else {
+      const idFileNames = files
+              .filter(function(fname) { return jsonEx.test(fname) })
+              .map(function(jsonFile) {
+                return function(callback) {
+                  const localPath = path.concat(jsonFile)
+                  return ssbkeys.load(localPath, function(err, newKey) {
+                    if (err) callback (err)
+                    else {
+                      callback(null, Object.assign(
+                        {}, newKey, { localPath }
+                      ))
+                    }
+                  })
+                }
+              })
+      parallel(idFileNames, function(err, keys) {
+        if (err) callback(err)
+        else callback(null, keys)
+      })
+    }
   })
 }
 
-exports.destroyIdentifier = function(configPath, id, errCallback) {
+exports.destroyIdentifier = function(pathToKey, id, errCallback) {
   // be careful testing this one! backup your IDs
-
+  // safety function that matches keypath to ID before deleting
+  
   if (!id) throw new Error('no key ID passed.')
-  const path   = utils.resolveConfigPath(configPath, subdirName)
-  const jsonEx = VerEx().find(id.concat('.json')).endOfLine()
-  fs.readdir(path, function(err, files) {
+  ssbkeys.load(pathToKey, function(err, key) {
     if (err) errCallback(err)
-    const idFile = files.find(function(fname) { return jsonEx.test(fname) })
-    fs.unlink(idFile, errCallback)
+    else if (key.id !== id) {
+      throw new Error(
+        'The keyfile you are trying to delete does not match the ID you gave.'
+      )
+    } else {
+      fs.unlink(pathToKey, errCallback)
+    }
   })
 }
 
