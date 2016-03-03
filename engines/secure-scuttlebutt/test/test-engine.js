@@ -36,16 +36,14 @@ tape('listIdentifiers finds the local keypairs', function(t) {
 
 tape('destroyIdentifier destroys a key when its ID is passed', function(t) {
   engine.createIdentifier(false, '/tmp/', function(err, newKey) {
-    debugger
-    engine.listIdentifiers('/tmp/', function(err, keys) {
-    engine.destroyIdentifier('/tmp/', newKey.id, function(err) {
-      t.notOk(err)
-      
-
-        t.notOk(keys.find(key => key.id === newKey.id))
-        t.end()
+      engine.destroyIdentifier(newKey.localPath, newKey.id, function(err) {
+        t.notOk(err)
+        engine.listIdentifiers('/tmp/', function(err, keys) {
+          
+          t.notOk(keys.find(key => key.id === newKey.id))
+          t.end()
+        })
       })
-    })
   })
 })
 
