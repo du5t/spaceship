@@ -169,12 +169,15 @@ options just haven't been good or flexible enough yet.
 
 #### spacecraft v. browsers
 
-to be honest, these days a browser is a cross between a television and cold war
-germany. its default use case is "consume content", and getting data out of it
-for your own use (as opposed to sending it to another consumer outlet) is a
-complex process of organising scripts to avoid falling afoul of CSP,
+to be honest, these days a browser is a cross between a television and a cold
+war european border. its default use case is "consume content", and getting data
+out of it for your own use (as opposed to sending it to another consumer outlet)
+is a complex process of organising scripts to avoid falling afoul of CSP,
 exfiltrating data through a URI, and parsing it once delivered to you. even
-though you can see it
+though you can see it and hear it through the browser window, you're not allowed
+to make it yours (for your own protection).
+
+
 
 
 a spacecraft has privacy and safety on the inside. yes, outside of it is an
@@ -184,9 +187,14 @@ of that is true already.
 
 and in a spaceship, you can go **anywhere**.
 
-## examples
+## prototypes and examples
 
+- [git-ssb](https://github.com/clehner/git-ssb)
 
+in fact this is a very interesting example, because git itself is a tool for
+producing different subjective views of a decentralised network of data!
+
+- [tor browser]() (thru hidden services only)
 
 ### why all this space junk?
 
