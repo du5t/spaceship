@@ -150,8 +150,15 @@ internet" is one of many sets of conventions and transmission media, and it is a
 centralised one, with very little actual choice, just a collection of mostly
 profit-oriented [dividuations](link here).
 
-twitter architecture being contentious
-
+- twitter architecture changes such as "verified" profiles and algorithmic
+  suggestions
+- facebook UI being used for emotional experiments
+- snapchat failing completely at its sole security promise
+- CDNs ghettoising requestors 
+- an overall trend of
+  "[bullshit minimalism](http://idlewords.com/talks/website_obesity.htm)"
+  obscuring a swath of throwaway "single page" javascript, written for the
+  primary purpose of providing data to markup
 
 in most of the above cases, basically the only recourse you have is to be a
 complaining consumer. you're not even a customer, because you don't have a
