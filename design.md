@@ -93,15 +93,15 @@ here are some examples:
   [forcing them to perform repeated labor to view content if they come from a suspected VPN or Tor exit IP](https://trac.torproject.org/projects/tor/ticket/18361)
 - an overall trend of
   "[bullshit minimalism](http://idlewords.com/talks/website_obesity.htm)"
-  obscuring a swath of throwaway "single page" javascript, written for the
-  primary purpose of providing data to markup
+  obscuring a swath of heavyweight, throwaway, "single page" javascript, written
+  for the primary purpose of providing data to markup
 
 in most of the above cases, basically the only recourse you have is to be a
 complaining consumer. you're not even a customer, because you don't have a
 paying arrangement (a condition for enfranchisement in a market-controlled
 system). and anyway, making a lot of noise in the same chamber controlled by the
 authority you're attempting to sway, or making insignificant consumption choices
-at the mercy of whatever "app" is trendy at the moment does nothing to actually
+at the mercy of whatever "app" is trendy at the moment, does nothing to actually
 increase your agency in any way. worst of all, it reinforces a frame where
 attention, oration, rhetoric, and other tactical expressions are the main tools
 of change, where "social capital" is yet another resource to be accumulated.
@@ -117,13 +117,47 @@ haven't been flexible or satisfying enough yet.
 
 #### spacecraft v. browsers
 
-to be honest, these days a browser is a cross between a television and a cold
-war european border. its default use case is "consume content", and getting data
-out of it for your own use (as opposed to sending it to another consumer outlet)
-is
+to be honest, these days a browser is a cross between a
+[television](https://thedissolve.com/features/movie-of-the-week/561-kill-your-television-before-it-kills-you/)
+and a cold war european border. its default use-case is "consume content", and
+getting data out of it for your own purposes (as opposed to transferring it to
+another consumer outlet) is
 [a complex process of organising scripts to avoid falling afoul of CSP, exfiltrating data through a URI, and parsing it once delivered to you](https://github.com/du5t/capsule). even
 though you can see it and hear it through the browser window, you're not allowed
 to make it yours (for your own protection).
+
+sadly, this trend is continuing, with this conception of "browser" informing and
+being informed by mobile phone operating systems, which are notoriously
+difficult to actually create anything with. the two things they are best at are:
+
+- spending your money
+- feeding you poorly-directed and portioned streams of market-driven content
+
+this trend leads all the way to "browser OS", most notably exemplified by
+[chrome OS](https://en.wikipedia.org/wiki/Chrome_OS), where "local" data is
+completely absent: the source of truth and matters of record is all located out
+of your grasp. considering that under the current state of governance
+[you are at the mercy of your remotely located identifying data](https://medium.com/phase-change/on-being-a-data-puppet-560e095373d5),
+this is no way to live.
+
+the other extreme is to abandon mediation altogether, and just use short,
+transparent programs that handle data streams from the minimal interface of a
+terminal located in a free operating system, as in the
+[unix philosophy](https://en.wikipedia.org/wiki/Unix_philosophy) and its
+contemporary form, [suckless](https://www.suckless.org). this is actually less
+intimidating than it appears: with tools like
+[fish](https://fishshell.com/docs/current/tutorial.html), the "friendly
+interactive shell", this kind of interaction is arguably already a
+[conversational UI](https://medium.com/@tomazstolfa/the-future-of-conversational-ui-belongs-to-hybrid-interfaces-8a228de0bdb5),
+marketing slogans aside.
+
+but that extreme's just not going to work for everybody. not everyone wants to
+[use emacs](http://www.emacsrocks.com), or
+[assemble a plane from a kit](http://www.kitplanes.com/), or
+[explore life as they would the parts of a motorcycle](https://en.wikipedia.org/wiki/Zen_and_the_Art_of_Motorcycle_Maintenance).
+
+if data exists in a space, and it can be made navigable and free, then people
+need a vehicle to do that safely with. they need a spaceship.
 
 a spacecraft has privacy and safety on the inside. yes, outside of it is an
 environment hostile to nearly all carbon-based life, with crazy radiations going
