@@ -81,6 +81,7 @@ identifying data should be stored in
 
 - createRecord
 - editRecord
+- viewRecord
 
 #### createRecord
 
@@ -104,6 +105,14 @@ indicating that it's an edit.
 
 throws an error if the existing record is not known to the spaceship.
 
+#### viewRecord
+
+- input: an ID referencing a record.
+- output: a record object with content, its creator's ID, and recipient IDs if
+  applicable
+
+retrieves a record from the space.
+
 #### notes
 
 - a record link is just the key of a record, namely, a reference.
@@ -111,9 +120,9 @@ throws an error if the existing record is not known to the spaceship.
   deletion.
 - edits may be better encoded as diffs, depending on their content type.
 - any ship may submit record edits. how they are viewed and processed is up to
-  interface convention--an orbital may establish itself as a wiki, and instruct
-  spaceships to accept edits from any pilot. a spaceship may also unilaterally
-  view different edits according to its own policies.
+  interface convention--for example, an orbital may establish itself as a wiki,
+  and instruct spaceships to accept edits from any pilot. a spaceship may also
+  unilaterally view different edits according to its own policies.
 
 ### orbital functions
 

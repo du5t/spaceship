@@ -31,7 +31,7 @@ producing different subjective views of a decentralised network of data!
 
 - [tor browser]() (thru hidden services only)
 
-for a complete prototype, see [the prototype doc]().
+for a complete prototype, see [the prototype doc (TODO)](#roadmap).
 
 ## roadmap
 
@@ -44,3 +44,4 @@ for a complete prototype, see [the prototype doc]().
     - ??
 - [ ] a reference visual interface:
   [spaceship-bridge](https://github.com/du5t/spaceship-bridge)
+- [ ] a complete prototype doc
