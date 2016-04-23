@@ -13,7 +13,7 @@ affordances that any cypherspace should be able to provide.
 
 1. [rationale and motivation](./rationale.md)
 2. [design overview](./design.md)
-2. [spaceship-schema](./spaceship-schema.md): a document describing the basic
+4. [spaceship-schema](./spaceship-schema.md): a document describing the basic
   building blocks of the design and how they relate.
 3. [spaceship-engines](./spaceship-engines.md): a document describing the basic
   "API-like" functions needed to realise the schema.
@@ -29,9 +29,10 @@ affordances that any cypherspace should be able to provide.
 in fact this is a very interesting example, because git itself is a tool for
 producing different subjective views of a decentralised network of data!
 
-- [tor browser]() (thru hidden services only)
+- [tor browser](https://www.torproject.org/projects/torbrowser.html.en) (thru
+  hidden services only)
 
-for a complete prototype, see [the prototype doc (TODO)](#roadmap).
+- [patchwork](https://github.com/ssbc/patchwork)
 
 ## roadmap
 

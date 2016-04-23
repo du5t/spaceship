@@ -19,7 +19,8 @@ and that's just it--"the" internet, as it is now, is a collection of
 financialised behemoths (not even metaphorically, this is the age of the server
 farm) who package up code and content to serve to consumers. sometimes they're
 "content creators", but they don't benefit the way an actual "creator"
-might. this line was written in 2016 CE and we're still digital sharecropping.
+might. this line was written in 2016 CE and we're *still*
+[digital sharecropping](http://bizshifts-trends.com/2014/07/23/digital-sharecropping-vast-majority-online-businesses-sharecroppers-distressing-dont-even-know/).
 
 even if you're not a marxist (or a
 [telekommunist](http://telekommunisten.net/the-telekommunist-manifesto/)), you
@@ -28,7 +29,9 @@ where people work for scraps (or sometimes for nothing at all) doing things like
 [completing menial videogame tasks](http://www.nickyee.com/pubs/Yee%20-%20Labor%20of%20Fun%20(2006).pdf),
 write
 [articles mainly designed to steal attention](http://www.theguardian.com/media/2016/apr/10/twitter-ev-williams-medium-content-fast-food)
-(often instead of actually informing),
+(often instead of actually informing), or
+[transferring labor directly to machines](http://blog.oddhead.com/2008/08/13/the-seedy-side-of-amazons-mechanical-turk/)
+through APIs whose endpoints are actually humans.
 
 this kind of network is not much of a space, and certainly not a safe space to
 be. if it's any sort of space at all, it's like the railsea of
@@ -40,9 +43,9 @@ with the advent of increasingly decentralised, private, independent (in the
 sense of capacity) communications, we've been given a chance to revisit the
 conception of 'cyberspace' as a separate performative domain.
 
-actually, you know what? scratch the passive voice. here is what happened: a
+actually, you know what--scratch the passive voice. here is what happened: **a
 bunch of really thoughtful people did an unbelievable amount of work for free
-and gave it away honestly. that continuing work, in the form of protocol
+and gave it away honestly**. that continuing work, in the form of protocol
 designs, code, tests, server time, commentary, conversation, and jokes, creates
 new spaces the way the internet did before existing social/economic empires and
 edifices colonised it.
