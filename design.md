@@ -182,3 +182,68 @@ permeating it. and yes, if you spring a leak, the privacy goes right out. but
 all of that is true already, and we're floating naked at the moment.
 
 and in a spaceship, you can go *anywhere*.
+
+## prototypicals
+
+ok, so that might have been a little bit abstract. here are some existing
+examples that approach the ideas above:
+
+- [patchwork](https://github.com/ssbc/patchwork)
+
+patchwork was the original inspiration for this design. it was intended as a
+demonstration of the secure-scuttlebutt protocol, with a light amount of
+feed-like structure (a la twitter) over the data. patchwork almost corresponds
+to the bridge of a spaceship, but it doesn't have good affordances for
+persistent group boundaries. its schema and message handling libs are a rough
+approximation of an engine. lastly, the "data feed" and "network sync" views
+provide an excellent glimpse into the visible galaxy.
+
+- [git-ssb](https://github.com/clehner/git-ssb)
+
+this is a very interesting example, because git itself is a tool for producing
+different subjective views of a decentralised network of data! both
+[patchwork](https://github.com/ssbc/patchwork) and git-ssb actually view
+overlapping sets of data provided by scuttlebot, but git-ssb provides
+affordances for appending git-compliant records to the scuttlebutt galaxy, as
+well as a github-like view with "issues" and "pull requests". issue threads can
+actually be viewed and replied to, using patchwork as well.
+
+the rough architecture of git-ssb is also very close to the spaceship parts i
+mentioned:
+
+> - A command line tool git-ssb for managing SSB git repos
+> - A git remote helper git-remote-ssb for using ssb:// URLs with git
+> - A web server git-ssb-web for browsing repos locally
+
+using the spaceship schema, i would label the top two as engine components, and
+the bottom one as part of a bridge.
+
+- [capsule](https://github.com/du5t/capsule)
+
+capsule is a bare one-way transmitter that exemplifies the spatial boundaries at
+play. its interface, installed as a browser plugin, extracts some selected
+portion of a WWW page and serialises it into a protocol URI for parsing and
+re-transmission into a galaxy (the engine component). this process is necessary
+to cross the borders set out by contemporary browsers, whose domain of use is
+the [WWW](https://en.wikipedia.org/wiki/World_Wide_Web).
+
+this results in a permanent record in some galaxy like ssb that now has a
+completely separate life from the original web page, and can now be commented
+on.
+
+- [tor browser](https://www.torproject.org/projects/torbrowser.html.en) (thru
+  hidden services only)
+
+though they're known for privacy, obfuscation, and censorship resistance, tor
+hidden services are also designed to cross NAT (network address translation)
+boundaries. they are available at `.onion` addresses, which constitute their own
+namespace separate from the central registries (DNS) and authorities (ICANN)
+that regulate the WWW or "surface web" (or whatever it is they call it these
+days).
+
+the tor browser bundle contains an aggressively updated and patched copy of the
+firefox browser, which serves as its "bridge" or "cockpit". it bundles a copy of
+tor which is automatically started in the background to allow connection
+through, and to, the namespace of onions. that serves as its
+"engine". naturally, the collection of relay, bridge, and hiddens service nodes
+(not to be confused with the spaceship bridge) constitute the onion "galaxy".

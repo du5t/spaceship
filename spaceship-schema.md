@@ -24,9 +24,10 @@ a spaceship is any networked device capable of galactic communication.
 **key characteristics:**
 
 - spaceships are the method by which travellers interact with cypherspace. they
-  are the embodiment of a traveler.
+  are the embodiment of a traveler as far as the galaxy is concerned.
 - spaceships have an obligation to relay or mirror records they receive to other
-  parts of the galaxy.
+  parts of the galaxy. (for example, a ship that views the ssb galaxy is also
+  obligated to participate in the gossip protocol that makes it work.)
 
 **design concepts:**
 
@@ -141,7 +142,7 @@ spaceships.
 
 **design concepts:**
 
-- the kriptosfear of iain banks'
+- the *kriptosfear* of iain banks'
   [feersum endjinn](https://en.wikipedia.org/wiki/Feersum_Endjinn)
 - the posthuman editable universe of
   [transistor](https://en.wikipedia.org/wiki/Transistor_(video_game))
@@ -199,4 +200,4 @@ orbital-local traffic.
 
 galaxywide broadcasts are of course also possible, but unreliable at
 best. experiments in the centralised internet outside of cypherspace have shown
-them to be deeply problematic also.
+them to be problematic.
