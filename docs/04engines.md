@@ -18,7 +18,7 @@ general remarks:
 - where a function returns no output (for example, if it is used to modify
   galactic or local state), it's best to return information about the result.
 
-## engine spec
+## spec details
 
 ### pilot/spaceship internal functions
 
