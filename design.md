@@ -42,10 +42,13 @@ in a spaceship, the components of the imbalanced client-server model that are
 kept out of your control are transformed into components that sit inside your
 spaceship.
 
-- engines instead of APIs
-- galaxies instead of application stacks, server clusters, and other large-scale
-  structure
-- spacecraft instead of browsers or "apps"
+- *engines* instead of APIs
+- *galaxies* instead of application stacks, server clusters, and other
+  large-scale structure to provide data
+- [*spaceships*](http://theartofanimation.tumblr.com/image/5781428741) (and
+  their [bridges](https://images4.alphacoders.com/846/84604.jpg) and
+  [cockpits](http://www.vehiclehi.com/Other_Vehicles/cockpit/black_prophecy_pc_dvd_rom_rkm_screenshot_03_tyi_cockpit_2560x1024_wallpaper_4142/download_1920x1200))
+  instead of browsers or stack-bound "apps"
 
 #### engines v. APIs
 
@@ -77,9 +80,10 @@ modules as usual), with a host of tweaks to get what you want out of them.
 as i mentioned in the motivation section, the network stack that runs "the
 internet" is one of many sets of conventions and transmission media, and it is a
 centralised one, with very little actual choice or agency, just a collection of
-mostly profit-oriented [dividuations](http://p2pfoundation.net/Dividuation).
-
-here are some examples:
+mostly profit-oriented
+[dividuations](http://p2pfoundation.net/Dividuation). despite the apparent
+quantity of services, the same sorts of betrayals and other abrupt changes occur
+from platform to platform:
 
 - twitter architecture changes such as
   ["verified" profiles](http://anildash.com/2013/03/what-its-like-being-verified-on-twitter.html)
@@ -91,6 +95,9 @@ here are some examples:
   [the privacy feature that constituted its sole offering](http://www.networkworld.com/article/2999980/security/snapchat-now-has-the-rights-to-store-and-share-selfies-taken-via-the-app.html)
 - CDNs ghettoising requestors by
   [forcing them to perform repeated labor to view content if they come from a suspected VPN or Tor exit IP](https://trac.torproject.org/projects/tor/ticket/18361)
+- tumblr
+  [removing LGBT-related material](http://www.gaystarnews.com/article/tumblr-censors-gay-lesbian-and-bisexual-search-tags230713/)
+  from search indexing
 - an overall trend of
   "[bullshit minimalism](http://idlewords.com/talks/website_obesity.htm)"
   obscuring a swath of heavyweight, throwaway, "single page" javascript, written
@@ -113,6 +120,11 @@ that concept is mostly a neurosis created by capital-dependent, winner-take-all
 systems. "[you and yours](https://en.wikipedia.org/wiki/Friend_of_a_friend)" is
 a good enough "market share" for a fully-lived experience. the options just
 haven't been flexible or satisfying enough yet.
+
+a healthy variety of interdependent but autonomous and discoverable networks of
+communication that decouple global hierarchy and authority from capacity and
+structure offers not only this flexibility, but also the recognition and agency
+not afforded by centralised networks.
 
 
 #### spacecraft v. browsers
@@ -157,11 +169,16 @@ but that extreme's just not going to work for everybody. not everyone wants to
 [explore life as they would the parts of a motorcycle](https://en.wikipedia.org/wiki/Zen_and_the_Art_of_Motorcycle_Maintenance).
 
 if data exists in a space, and it can be made navigable and free, then people
-need a vehicle to do that safely with. they need a spaceship.
+need a vehicle to do that safely with. they need a **spaceship**.
 
-a spacecraft has privacy and safety on the inside. yes, outside of it is an
-environment hostile to nearly all carbon-based life, with crazy radiations going
-everywhere. and yes, if you spring a leak, the privacy goes right out. but all
-of that is true already.
+a **spaceship** is a coherent and unified collection of personal affordances
+with you as its subject. your ship is code that you control. your ship is an
+interface you can understand. your ship travels through a space that doesn't set
+you up to win, lose, or control others.
 
-and in a spaceship, you can go **anywhere**.
+a **spaceship** has privacy and safety on the inside. yes, outside of it is an
+environment hostile to nearly all carbon-based life, with hazardous radiation
+permeating it. and yes, if you spring a leak, the privacy goes right out. but
+all of that is true already, and we're floating naked at the moment.
+
+and in a spaceship, you can go *anywhere*.
