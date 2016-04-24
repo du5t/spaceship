@@ -42,6 +42,7 @@ producing different subjective views of a decentralised network of data!
     - [ ] onionspace/tor
     - [ ] hydra
     - [ ] orbit-db/ipfs
+    - [ ] i2p
     - ??
 - [ ] a reference visual interface:
   [spaceship-bridge](https://github.com/du5t/spaceship-bridge)
