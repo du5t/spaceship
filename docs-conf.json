@@ -1,0 +1,8 @@
+{
+  "source": {
+    "include": ["engines"],
+    "exclude": ["node_modules"]
+  },
+  "plugins": ["plugins/markdown"],
+  "extensions": ["js"]
+}

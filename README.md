@@ -11,6 +11,8 @@ affordances that any cypherspace should be able to provide.
 
 ## contents
 
+tl;dr: `npm install; npm run doc; open docs/jsdoc/index.html`
+
 1. [rationale and motivation](./docs/01rationale.md)
 2. [design overview](./docs/02overview.md)
 4. [prototypical examples](./docs/02overview.md#prototypicals)
