@@ -4,7 +4,8 @@
   "description": "a vehicle for cypherspace travel",
   "main": "index.js",
   "scripts": {
-    "test": "set -e; for t in 'engines/**/test/*.js'; do node --harmony_destructuring $t; done"
+    "test": "./test.sh",
+    "doc": "jsdoc -c docs-conf.json -r --verbose -d docs/jsdoc/"
   },
   "repository": {
     "type": "git",
@@ -36,6 +37,7 @@
     "xdg-basedir": "^2.0.0"
   },
   "devDependencies": {
+    "jsdoc": "^3.4.0",
     "tape": "^4.4.0"
   }
 }

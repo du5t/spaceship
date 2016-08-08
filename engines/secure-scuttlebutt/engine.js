@@ -26,7 +26,26 @@ var appHost = process.env.ssb_host || 'localhost'
 var appPort = process.env[`${appName}_port`] || 8009
 var ssbOpts = { host: appHost, port: appPort, key: appKeys.id }
 
-/** @namespace engine */
+/**
+ * @namespace engine 
+ * @prop {function} clientCall - internal access to sbot
+ * @prop {function} createIdentifier - creates ship ID
+ * @prop {function} listIdentifiers - lists available ship IDs
+ * @prop {function} destroyIdentifier - permanently destroys ship ID
+ * @prop {function} entombData - NOT IMPLEMENTED
+ * @prop {function} importData - NOT IMPLEMENTED
+ * @prop {function} createRecord - creates record
+ * @prop {function} viewRecord - retrieves record
+ * @prop {function} editRecord - revises record
+ * @prop {function} createOrbital - creates **orbital** record
+ * @prop {function} viewOrbital - retrieves **orbital** record
+ * @prop {function} hailOrbital - sends greeting message to orbital
+ * @prop {function} inviteTraveller - invites traveller into orbital subspace
+ * @prop {function} emigrateOrbital - removes self from orbital subspace
+ * @prop {function} deportResident - removes other from orbital subspace
+ * @prop {function} enterGalaxy - NOT IMPLEMENTED
+ * @prop {function} leaveGalaxy - NOT IMPLEMENTED
+*/
 var engine = {};
 
 /**
@@ -38,8 +57,7 @@ var engine = {};
  * if (keypair) { ssbClientArgs.push(keypair) }
  * ssbClientArgs.push(publish)
  *
- * // ssbClient.apply(this, ssbClientArgs)
- * engine.clientCall(this, ssbClientArgs)
+ * engine.clientCall.apply(this, ssbClientArgs)
  * ```
  * 
  * i know, weird. but it sort of makes me happy. and isn't that what javascript
@@ -50,6 +68,7 @@ var engine = {};
  * and a callback reference to handle its result.
  * @returns {function} - sort of a closure with config params etc. as demanded
  * by `ssbClient`.
+ * @memberof engine
 */
 engine.clientCall = function(sbotCall) {
   return ssbClient(appKeys, ssbOpts, sbotCall)
@@ -67,6 +86,7 @@ engine.clientCall = function(sbotCall) {
  * @param {string} path - path to the config directory where the key will be
  * located.
  * @param {function} callback - err-back called when the creation is done.
+ * @memberof engine
 */
 engine.createIdentifier = function(ephemeral, path, callback) {
   let basepath = ''
@@ -103,6 +123,7 @@ engine.createIdentifier = function(ephemeral, path, callback) {
  * function that lists the available local ship IDs.
  * @param {string} configPath - path to the application config.
  * @param {function} callback - err-back called with the IO result.
+ * @memberof engine
 */
 engine.listIdentifiers = function(configPath, callback) {
   // callback to do something with them
@@ -142,6 +163,7 @@ engine.listIdentifiers = function(configPath, callback) {
  * @param {function} errCallback - function to call if an IO error occurs
  * @throws {Error} - one of two non-IO errors: no key ID, or ID/keyfile
  * mismatch.
+ * @memberof engine
 */
 engine.destroyIdentifier = function(pathToKey, id, errCallback) {
   // be careful testing this one! backup your IDs
@@ -163,6 +185,7 @@ engine.destroyIdentifier = function(pathToKey, id, errCallback) {
 /**
  * function for freezing data (i.e., cryptographically). would probably involve
  * compression->encryption. **not implemented**
+ * @memberof engine
 */
 engine.entombData = function() {
   return null
@@ -171,6 +194,7 @@ engine.entombData = function() {
 /**
  * function for importing frozen data. reverse of `entombData()`.  **not
  * implemented**
+ * @memberof engine
 */
 engine.importData = function() {
   return null
@@ -194,6 +218,7 @@ engine.importData = function() {
  * @param {string} content - the (serialised) content of the record.
  * @param {string} keypair - the ID keypair to use as the author of the record.
  * @param {function} callback - err-back to call when the record is created.
+ * @memberof engine
 */
 engine.createRecord = function(orbital, type, links, content, keypair, callback) {
   if (typeof keypair === 'function') {
@@ -223,7 +248,7 @@ engine.createRecord = function(orbital, type, links, content, keypair, callback)
   if (keypair) { ssbClientArgs.push(keypair) }
   ssbClientArgs.push(publish)
 
-  // ssbClient.apply(this, ssbClientArgs)
+// ssbClient.apply(this, ssbClientArgs)
   engine.clientCall.apply(this, ssbClientArgs)
 }
 
@@ -231,6 +256,7 @@ engine.createRecord = function(orbital, type, links, content, keypair, callback)
  * function to retrieve a record.
  * @param {string} recordID - ID of the record to retrieve.
  * @param {function} callback - err-back to be called with the result.
+ * @memberof engine
 */
 engine.viewRecord = function(recordID, callback) {
   // TODO: refactor this
@@ -252,6 +278,7 @@ engine.viewRecord = function(recordID, callback) {
  * @param {object} origMsg - the original record to revise.
  * @param {string} revision - the ID of the record to revise. can be null.
  * @param {function} callback - err-back to call with the resulting record.
+ * @memberof engine
 */
 engine.editRecord = function(links, origMsg, revision, callback) {
   var ssbRecord = {}
@@ -286,6 +313,7 @@ engine.editRecord = function(links, origMsg, revision, callback) {
  * @param {object} agreement - currently unused. points at a policy record which
  * indicates what agreements the orbital residents follow.
  * @param {function} callback - err-back to handle the resulting orbital.
+ * @memberof engine
 */
 engine.createOrbital = function(name, invitees, agreement, callback) {
 //  const { announce, openResidency, governmentType, dictator } = agreement
@@ -330,6 +358,7 @@ engine.createOrbital = function(name, invitees, agreement, callback) {
  * function to collect a digest of records rooted in an orbital.
  * @param {string} orbitalID - ID of the orbital record.
  * @param {function} callback - err-back to handle the result.
+ * @memberof engine
 */
 engine.viewOrbital = function(orbitalID, callback) {
   /* 
@@ -376,6 +405,7 @@ engine.viewOrbital = function(orbitalID, callback) {
  * @param {object} orbital - the (ideally) latest record describing the orbital.
  * @param {string} intro - the body of the hail.
  * @param {function} callback - err-back for the result.
+ * @memberof engine
 */
 engine.hailOrbital = function(orbital, intro, callback) {
   /* in ssb's case, it seems good enough to hit everyone in the orbital with a
@@ -402,6 +432,7 @@ engine.hailOrbital = function(orbital, intro, callback) {
  * @param {string} intro - a message introducing the traveller.
  * @param {function} callback - err-back containing the resulting record or
  * error.
+ * @memberof engine
 */
 engine.inviteTraveller = function(traveller, orbital, intro, callback) {
   var invite     = {}
@@ -422,6 +453,7 @@ engine.inviteTraveller = function(traveller, orbital, intro, callback) {
  * @param {string} outro - body containing a farewell message or such.
  * @param {function} callback - err-back called on the resulting record or
  * error.
+ * @memberof engine
 */
 engine.emigrateOrbital = function(orbital, outro, callback) {
   /* leave a message letting all the other ships in the orbital know you're
@@ -447,6 +479,7 @@ engine.emigrateOrbital = function(orbital, outro, callback) {
  * @param {string} justification - body of the [r]ejection record.
  * @param {function} callback - err-back called with the resulting record or
  * error.
+ * @memberof engine
 */
 engine.deportResident = function(traveller, orbital, justification, callback) {
   var rejection     = {}
@@ -491,6 +524,7 @@ engine.deportResident = function(traveller, orbital, justification, callback) {
  * TODO replace all of this with something like RPC on scuttlebot-views
  * @param {string} keyLocation - path to spaceship identifier.
  * @param {object} botInfo - object containing appropriate info to run sbot.
+ * @memberof engine
 */
 engine.enterGalaxy = function(keyLocation, botInfo) {
 
@@ -516,6 +550,7 @@ engine.enterGalaxy = function(keyLocation, botInfo) {
  * connects to ssb galaxy.
  * @param {string} shipID - ID of the connected ship ID, if there is more than
  * one (i.e., multiplexing case)
+ * @memberof engine
 */
 engine.leaveGalaxy = function(childProc, shipID) {
   if (typeof childProc !== undefined) {
