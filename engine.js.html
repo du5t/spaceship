@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: engine.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: engine.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/*
+ * sbot function  allows spaceship to travel the secure-scuttlebutt galaxy.
+ * 
+ */
+'use strict'
+var utils              = require('../some-utils')
+const subdirName       = 'spaceship/ssb/'
+var fs                 = require('fs')
+var path               = require('path')
+var jsonfile           = require('jsonfile')
+var VerEx              = require('verbal-expressions')
+var parallel           = require('run-parallel')
+var uuid               = require('uuid')
+
+var ssbClient          = require('ssb-client')
+var ssbkeys            = require('ssb-keys')
+var ssbMsgLib          = require('ssb-msgs')
+var ssbref             = require('ssb-ref')
+var patchworkThreadLib = require('patchwork-threads')
+
+
+// set up ssb client so that the main thread doesn't get hit all the time
+var appName = process.env.ssb_appname || 'spaceship_test'
+var appKeys = ssbkeys.loadOrCreateSync(path.join(process.env.HOME, `.${appName}/secret`))
+var appHost = process.env.ssb_host || 'localhost'
+var appPort = process.env[`${appName}_port`] || 8009
+var ssbOpts = { host: appHost, port: appPort, key: appKeys.id }
+
+/**
+ * @namespace engine 
+ * @prop {function} clientCall - internal access to sbot
+ * @prop {function} createIdentifier - creates ship ID
+ * @prop {function} listIdentifiers - lists available ship IDs
+ * @prop {function} destroyIdentifier - permanently destroys ship ID
+ * @prop {function} entombData - NOT IMPLEMENTED
+ * @prop {function} importData - NOT IMPLEMENTED
+ * @prop {function} createRecord - creates record
+ * @prop {function} viewRecord - retrieves record
+ * @prop {function} editRecord - revises record
+ * @prop {function} createOrbital - creates **orbital** record
+ * @prop {function} viewOrbital - retrieves **orbital** record
+ * @prop {function} hailOrbital - sends greeting message to orbital
+ * @prop {function} inviteTraveller - invites traveller into orbital subspace
+ * @prop {function} emigrateOrbital - removes self from orbital subspace
+ * @prop {function} deportResident - removes other from orbital subspace
+ * @prop {function} enterGalaxy - NOT IMPLEMENTED
+ * @prop {function} leaveGalaxy - NOT IMPLEMENTED
+*/
+var engine = {};
+
+/**
+ * weird function to call ssbClient more comfortably.
+ *
+ * should never be called directly, at least, i don't. here is what i do:
+ * ```js
+ * var ssbClientArgs = []
+ * if (keypair) { ssbClientArgs.push(keypair) }
+ * ssbClientArgs.push(publish)
+ *
+ * engine.clientCall.apply(this, ssbClientArgs)
+ * ```
+ * 
+ * i know, weird. but it sort of makes me happy. and isn't that what javascript
+ * is *really* about? (i joke.)
+ *
+ * @param {function} sbotCall - a function with the signature `(Error: err,
+ * sbot: sbot)` that contains a procedure/call for the sbot client to execute,
+ * and a callback reference to handle its result.
+ * @returns {function} - sort of a closure with config params etc. as demanded
+ * by `ssbClient`.
+ * @memberof engine
+*/
+engine.clientCall = function(sbotCall) {
+  return ssbClient(appKeys, ssbOpts, sbotCall)
+}
+
+/* 
+ * pilot/spaceship functions
+ * 
+*/
+
+/**
+ * function creating a spaceship identifier (keypair).
+ * @param {boolean} ephemeral - should the ID be ephemeral, or should it be
+ * saved in the app config dir?
+ * @param {string} path - path to the config directory where the key will be
+ * located.
+ * @param {function} callback - err-back called when the creation is done.
+ * @memberof engine
+*/
+engine.createIdentifier = function(ephemeral, path, callback) {
+  let basepath = ''
+  if (typeof ephemeral === 'function') {
+    callback = ephemeral
+    ephemeral = false
+  }
+  if (typeof path === 'function') {
+    callback = path
+  } else if (typeof path === 'string') {
+    basepath = path.concat(subdirName)
+  } else {
+    basepath = utils.resolveConfigPath(null, subdirName)
+  }
+  
+  if (ephemeral) {
+    callback(null, ssbkeys.generate('ed25519'))
+  } else {
+    const someUser = uuid.v4().concat('.json')
+    const localPath = basepath.concat(someUser)
+    ssbkeys.create(
+      localPath, 'ed25519', function(err, newKey) {
+        if (err) callback (err)
+        else {
+          callback(null, Object.assign(
+            {}, newKey, { localPath }
+          ))
+        }
+      })
+  }
+}
+
+/**
+ * function that lists the available local ship IDs.
+ * @param {string} configPath - path to the application config.
+ * @param {function} callback - err-back called with the IO result.
+ * @memberof engine
+*/
+engine.listIdentifiers = function(configPath, callback) {
+  // callback to do something with them
+  const path = utils.resolveConfigPath(configPath, subdirName)
+  const jsonEx = VerEx().find('.json').endOfLine()
+
+  fs.readdir(path, function(err, files) {
+    if (err) callback(err)
+    else {
+      const idFileNames = files
+              .filter(function(fname) { return jsonEx.test(fname) })
+              .map(function(jsonFile) {
+                return function(callback) {
+                  const localPath = path.concat(jsonFile)
+                  return ssbkeys.load(localPath, function(err, newKey) {
+                    if (err) callback (err)
+                    else {
+                      callback(null, Object.assign(
+                        {}, newKey, { localPath }
+                      ))
+                    }
+                  })
+                }
+              })
+      parallel(idFileNames, function(err, keys) {
+        if (err) callback(err)
+        else callback(null, keys)
+      })
+    }
+  })
+}
+
+/**
+ * function for permanently destroying an ID.
+ * @param {string} pathToKey - the path to the key itself
+ * @param {number} id - the key's ID.
+ * @param {function} errCallback - function to call if an IO error occurs
+ * @throws {Error} - one of two non-IO errors: no key ID, or ID/keyfile
+ * mismatch.
+ * @memberof engine
+*/
+engine.destroyIdentifier = function(pathToKey, id, errCallback) {
+  // be careful testing this one! backup your IDs
+  // safety function that matches keypath to ID before deleting
+  
+  if (!id) throw new Error('no key ID passed.')
+  ssbkeys.load(pathToKey, function(err, key) {
+    if (err) errCallback(err)
+    else if (key.id !== id) {
+      throw new Error(
+        'The keyfile you are trying to delete does not match the ID you gave.'
+      )
+    } else {
+      fs.unlink(pathToKey, errCallback)
+     }
+  })
+}
+
+/**
+ * function for freezing data (i.e., cryptographically). would probably involve
+ * compression->encryption. **not implemented**
+ * @memberof engine
+*/
+engine.entombData = function() {
+  return null
+}
+
+/**
+ * function for importing frozen data. reverse of `entombData()`.  **not
+ * implemented**
+ * @memberof engine
+*/
+engine.importData = function() {
+  return null
+}
+
+/*
+ * record functions
+ * 
+ * essentially the job of record functions is to map spaceship schema to galaxy
+ * schema. see below for what that looks like
+ * 
+*/
+
+/**
+ * function for creating a record in the galaxy.
+ * @param {string} orbital - ID of the orbital the record belongs to.
+ * @param {string} type - metadata describing the record type, i.e. "post",
+ * "vote", etc.
+ * @param {Array} links - array of ID strings, indicating other records this one
+ * connects to in some way.
+ * @param {string} content - the (serialised) content of the record.
+ * @param {string} keypair - the ID keypair to use as the author of the record.
+ * @param {function} callback - err-back to call when the record is created.
+ * @memberof engine
+*/
+engine.createRecord = function(orbital, type, links, content, keypair, callback) {
+  if (typeof keypair === 'function') {
+    callback = keypair
+    keypair = undefined
+  }
+  
+  var ssbRecord = {}
+  ssbRecord.type    = type
+  ssbRecord.links   = links ? links : null
+  ssbRecord.channel = orbital ? orbital.id : undefined
+  ssbRecord.recps   = orbital ? orbital.residents : undefined
+  ssbRecord.content = content
+
+  var publish = function (err, sbot) {
+    if (err) callback(err)
+    
+    // publish a message
+    sbot.publish(ssbRecord, callback)
+      // msg.key           == hash(msg.value)
+      // msg.value.author  == your id
+      // msg.value.content == { type: 'post', text: 'My First Post!' }
+      // ...
+    
+  }
+  var ssbClientArgs = []
+  if (keypair) { ssbClientArgs.push(keypair) }
+  ssbClientArgs.push(publish)
+
+// ssbClient.apply(this, ssbClientArgs)
+  engine.clientCall.apply(this, ssbClientArgs)
+}
+
+/**
+ * function to retrieve a record.
+ * @param {string} recordID - ID of the record to retrieve.
+ * @param {function} callback - err-back to be called with the result.
+ * @memberof engine
+*/
+engine.viewRecord = function(recordID, callback) {
+  // TODO: refactor this
+  var view = function (err, sbot) {
+    if (err) callback(err)
+    sbot.get(recordID, callback)
+  }
+  var ssbClientArgs = []
+  ssbClientArgs.push(view)
+
+  engine.clientCall.apply(this, ssbClientArgs)
+}
+
+/**
+ * function to edit a record. produces a new record linking back to the record
+ * it revises, according to ssb schema.
+ * @param {array} links - an array of record IDs this record links to, as in a
+ * usual record.
+ * @param {object} origMsg - the original record to revise.
+ * @param {string} revision - the ID of the record to revise. can be null.
+ * @param {function} callback - err-back to call with the resulting record.
+ * @memberof engine
+*/
+engine.editRecord = function(links, origMsg, revision, callback) {
+  var ssbRecord = {}
+  ssbRecord.type     = 'post-edit'
+  ssbRecord.links    = { links }
+  ssbRecord.revision |= utils.ssbLink(origMsg.key)
+  ssbRecord.channel  = origMsg.value.channel
+  ssbRecord.recps    = origMsg.value.recps
+  ssbRecord.content  = origMsg.value.content
+
+  ssbClient(function (err, sbot) {
+    if (err) callback(err)
+    
+    else sbot.publish(ssbRecord, callback)
+      // msg.key           == hash(msg.value)
+      // msg.value.author  == your id
+      // msg.value.content == { type: 'post', text: 'My First Post!' }
+      // ...
+    
+  })
+}
+
+/*
+ * orbital functions
+ * 
+*/
+
+/**
+ * function to create an orbital record.
+ * @param {string} name - the name of the orbital.
+ * @param {Array} invitees - an array of invitee ID strings.
+ * @param {object} agreement - currently unused. points at a policy record which
+ * indicates what agreements the orbital residents follow.
+ * @param {function} callback - err-back to handle the resulting orbital.
+ * @memberof engine
+*/
+engine.createOrbital = function(name, invitees, agreement, callback) {
+//  const { announce, openResidency, governmentType, dictator } = agreement
+  var ssbOrbital = {}
+  if (announce === undefined || announce === true) {
+    // publicly discoverable case--leave a replicable record
+    ssbOrbital.type        = 'orbital'
+    ssbOrbital.channel     = name
+    ssbOrbital.residents   = invitees
+    ssbOrbital.policy      = policy
+    ssbOrbital.content     =
+      'Orbital '.concat(name)
+                .concat(' has been constructed! You are now a resident, which')
+                .concat(' means you can view its records.')
+    
+    ssbClient(function (err, sbot) {
+      if (err) callback(err)
+      
+      // publish a message
+      sbot.publish(ssbOrbital, callback)
+    })    
+  } else {
+    // manifest the orbital as a mere list of recipients
+    ssbOrbital.type    = 'post'
+    ssbOrbital.channel = name
+    ssbOrbital.recps   = invitees
+    ssbOrbital.policy  = policy
+    ssbOrbital.content =
+      'Orbital '.concat(name)
+                .concat(' has been constructed! You are now a resident, which')
+                .concat(' means you can view its records.')
+    
+    ssbClient(function (err, sbot) {
+      if (err) callback(err)
+      
+      else sbot.publish(ssbOrbital, callback)
+    })
+  }
+}
+
+/**
+ * function to collect a digest of records rooted in an orbital.
+ * @param {string} orbitalID - ID of the orbital record.
+ * @param {function} callback - err-back to handle the result.
+ * @memberof engine
+*/
+engine.viewOrbital = function(orbitalID, callback) {
+  /* 
+   * fetches all of the record heads in an orbital for easy viewing
+   * 
+   */
+  ssbClient(function(err, sbot) {
+    sbot.relatedMessages(
+      {id: orbitalID, count: true}, 
+      function(err, orbitalWithRelations) {
+        var recordRootGetters = orbitalWithRelations.related
+              .filter(function (relatedMsg) {
+                return relatedMsg.content.value.type === 'record'
+              })
+              .map(function(relatedRecord) {
+                return function(callback) {
+                  patchworkThreadLib.fetchThreadRootID(sbot, relatedRecord, callback)
+                }
+              })
+        parallel(recordRootGetters, function(err, rootIDs) {
+          if (err) callback(err)
+          else {
+            const uniqIDs = new Set(rootIDs.slice())
+            // get message for each
+            uniqIDs.map(function(recordID) {
+              
+            })
+            
+            // sort by date
+
+            // callback
+            callback(null, recordRoots)
+          }
+        })
+      })
+
+  })
+  
+}
+
+/**
+ * function to contact the orbital 'from the outside'. allows interactions like
+ * asking for an invite.
+ * @param {object} orbital - the (ideally) latest record describing the orbital.
+ * @param {string} intro - the body of the hail.
+ * @param {function} callback - err-back for the result.
+ * @memberof engine
+*/
+engine.hailOrbital = function(orbital, intro, callback) {
+  /* in ssb's case, it seems good enough to hit everyone in the orbital with a
+   * hail message
+   * 
+   * only works on discoverable orbitals (for good reason)
+   */
+  var hail     = {}
+  hail.type    = 'hail'
+  hail.recps   = orbital.residents
+  hail.content = intro
+  
+  ssbClient(function (err, sbot) {
+    if (err) callback(err)
+    
+    else sbot.publish(hail, callback)
+  })
+}
+
+/**
+ * function to invite a traveller to an orbital.
+ * @param {string} traveller - the ID of the traveller.
+ * @param {string} orbital - the (ideally) latest record describing the orbital.
+ * @param {string} intro - a message introducing the traveller.
+ * @param {function} callback - err-back containing the resulting record or
+ * error.
+ * @memberof engine
+*/
+engine.inviteTraveller = function(traveller, orbital, intro, callback) {
+  var invite     = {}
+  invite.type    = 'invite'
+  invite.recps   = orbital.residents
+  invite.content = intro
+
+  ssbClient(function (err, sbot) {
+    if (err) callback(err)
+    
+    else sbot.publish(invite, callback)
+  })
+}
+
+/**
+ * function announcing permanent exit from an orbital. works like a hail.
+ * @param {string} orbital - the (ideally) latest record describing the orbital.
+ * @param {string} outro - body containing a farewell message or such.
+ * @param {function} callback - err-back called on the resulting record or
+ * error.
+ * @memberof engine
+*/
+engine.emigrateOrbital = function(orbital, outro, callback) {
+  /* leave a message letting all the other ships in the orbital know you're
+   * leaving, so they can strip your ID from traffic
+   * 
+   */
+  var farewell     = {}
+  farewell.type    = 'emigration'
+  farewell.recps   = orbital.residents
+  farewell.content = outro
+  
+  ssbClient(function (err, sbot) {
+    if (err) callback(err)
+    
+    else sbot.publish(farewell, callback)
+  })
+}
+
+/**
+ * function [r]ejecting an orbital member from an orbital.
+ * @param {string} traveller - an ID pointing at a traveller.
+ * @param {object} orbital - the (ideally) latest record describing the orbital.
+ * @param {string} justification - body of the [r]ejection record.
+ * @param {function} callback - err-back called with the resulting record or
+ * error.
+ * @memberof engine
+*/
+engine.deportResident = function(traveller, orbital, justification, callback) {
+  var rejection     = {}
+  rejection.type    = 'rejection'
+  rejection.recps   = orbital.residents
+  rejection.content = justification
+
+  ssbClient(function (err, sbot) {
+    if (err) callback(err)
+    
+    else sbot.publish(rejection, callback)
+  })
+}
+
+/*
+ * galaxy functions
+ * 
+*/
+
+/**
+ * **not implemented yet**
+ *
+ * ssb-client expects to have a scuttlebot running someplace it can reach. all
+ * interaction with it is through callbacks.
+ *
+ * this function in sbot's case is just for spinning up that child process, if
+ * there isn't one already.
+ *
+ * so we have three cases:
+ *
+ * 1) bot not running -> start with with above key location and return process
+ * ref
+ *
+ * 2) bot running, key location is different from running bot -> new identifier,
+ * so return a partial application (curry) of ssbClient that includes botInfo
+ *
+ * 3) bot running, key location is empty -> default identifier; return ok
+ *
+ * for type/interface sanity this means we should return an object that
+ * describes which of these things happened, containing the return of above.
+ *
+ * TODO replace all of this with something like RPC on scuttlebot-views
+ * @param {string} keyLocation - path to spaceship identifier.
+ * @param {object} botInfo - object containing appropriate info to run sbot.
+ * @memberof engine
+*/
+engine.enterGalaxy = function(keyLocation, botInfo) {
+
+//  if (botInfo )
+
+}
+
+/**
+ * **not implemented yet**
+ *
+ * following after above cases:
+ *
+ * 1) bot was started in spaceship -> halt process, return ok
+ * 
+ * 2) bot running, plural keys -> ?? how does sbot treat this case?
+ *
+ * 3) bot running independently, default key -> do nothing, spaceship never had
+ * control
+ *
+ * TODO replace as above with RPC on scuttlebot-views 
+ *
+ * @param {object} childProc - reference pointing to the child process that
+ * connects to ssb galaxy.
+ * @param {string} shipID - ID of the connected ship ID, if there is more than
+ * one (i.e., multiplexing case)
+ * @memberof engine
+*/
+engine.leaveGalaxy = function(childProc, shipID) {
+  if (typeof childProc !== undefined) {
+    
+  } else if (typeof shipID !== undefined) {
+
+  } else {
+    
+  }
+}
+
+module.exports = engine;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="engine.html">engine</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Sun Aug 07 2016 19:21:27 GMT-0700 (PDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
