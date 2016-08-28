@@ -249,7 +249,6 @@ engine.createRecord = function(orbital, type, links, content, keypair, callback)
   if (keypair) { ssbClientArgs.push(keypair) }
   ssbClientArgs.push(publish)
 
-// ssbClient.apply(this, ssbClientArgs)
   engine.clientCall.apply(this, ssbClientArgs)
 }
 
@@ -274,21 +273,33 @@ engine.viewRecord = function(recordID, callback) {
 /**
  * function to edit a record. produces a new record linking back to the record
  * it revises, according to ssb schema.
+ *
+ * for the record, here is that schema:
+ *
+ * `{ type: 'post-edit', text: String, root: MsgLink, revisionRoot: MsgLink, revisionBranch: MsgLink, mentions: Links }`
+ *
  * @param {array} links - an array of record IDs this record links to, as in a
  * usual record.
  * @param {object} origMsg - the original record to revise.
- * @param {string} revision - the ID of the record to revise. can be null.
+ * @param {string} revisionID - the ID of the record to revise. can be null.
+ * @param {string} revisionContent - the revised content
  * @param {function} callback - err-back to call with the resulting record.
  * @memberof engine
 */
-engine.editRecord = function(links, origMsg, revision, callback) {
+engine.editRecord = function(links, origMsg, revisionID, revisionContent, callback) {
   var ssbRecord = {}
-  ssbRecord.type     = 'post-edit'
-  ssbRecord.links    = { links }
-  ssbRecord.revision |= utils.ssbLink(origMsg.key)
-  ssbRecord.channel  = origMsg.value.channel
-  ssbRecord.recps    = origMsg.value.recps
-  ssbRecord.content  = origMsg.value.content
+  ssbRecord.type            = 'post-edit'
+  ssbRecord.links           = { links }
+  ssbRecord.revisionBranch |= utils.ssbLink(origMsg.key)
+  ssbRecord.channel         = origMsg.value.channel
+  ssbRecord.recps           = origMsg.value.recps
+  ssbRecord.content         = revisionContent
+
+  if (origMsg.value.content.type === 'post-edit') {
+    ssbRecord.revisionRoot = origMsg.value.content.revisionRoot
+  } else {
+    ssbRecord.revisionRoot = utils.ssbLink(origMsg.key)
+  }
 
   ssbClient(function (err, sbot) {
     if (err) callback(err)
@@ -313,23 +324,22 @@ engine.editRecord = function(links, origMsg, revision, callback) {
  * @param {Array} invitees - an array of invitee ID strings.
  * @param {object} agreement - currently unused. points at a policy record which
  * indicates what agreements the orbital residents follow.
+ * @param {boolean} announce - whether to publicly announce orbital creation. if
+ * false, invitees will receive private messages from the orbital creator only.
  * @param {function} callback - err-back to handle the resulting orbital.
  * @memberof engine
 */
-engine.createOrbital = function(name, invitees, agreement, callback) {
+engine.createOrbital = function(name, invitees, agreement, announce, callback) {
 //  const { announce, openResidency, governmentType, dictator } = agreement
   var ssbOrbital = {}
+  ssbOrbital.content = 'Orbital '.concat(name).concat(' constructed!')
+  ssbOrbital.channel    = name
+  ssbOrbital.residents  = invitees
+  ssbOrbital.type        = 'orbital'
+  ssbOrbital.agreement   = agreement
+
   if (announce === undefined || announce === true) {
     // publicly discoverable case--leave a replicable record
-    ssbOrbital.type        = 'orbital'
-    ssbOrbital.channel     = name
-    ssbOrbital.residents   = invitees
-    ssbOrbital.policy      = policy
-    ssbOrbital.content     =
-      'Orbital '.concat(name)
-                .concat(' has been constructed! You are now a resident, which')
-                .concat(' means you can view its records.')
-    
     ssbClient(function (err, sbot) {
       if (err) callback(err)
       
@@ -338,14 +348,8 @@ engine.createOrbital = function(name, invitees, agreement, callback) {
     })    
   } else {
     // manifest the orbital as a mere list of recipients
-    ssbOrbital.type    = 'post'
-    ssbOrbital.channel = name
-    ssbOrbital.recps   = invitees
-    ssbOrbital.policy  = policy
-    ssbOrbital.content =
-      'Orbital '.concat(name)
-                .concat(' has been constructed! You are now a resident, which')
-                .concat(' means you can view its records.')
+    ssbOrbital.recps      = invitees
+    ssbOrbital.agreement  = agreement
     
     ssbClient(function (err, sbot) {
       if (err) callback(err)
@@ -358,10 +362,12 @@ engine.createOrbital = function(name, invitees, agreement, callback) {
 /**
  * function to collect a digest of records rooted in an orbital.
  * @param {string} orbitalID - ID of the orbital record.
+ * @param {boolean} fetchActual - whether or not to insist on the actual record,
+ * not just the ID
  * @param {function} callback - err-back to handle the result.
  * @memberof engine
 */
-engine.viewOrbital = function(orbitalID, callback) {
+engine.viewOrbital = function(orbitalID, fetchActual, callback) {
   /* 
    * fetches all of the record heads in an orbital for easy viewing
    * 
@@ -370,6 +376,7 @@ engine.viewOrbital = function(orbitalID, callback) {
     sbot.relatedMessages(
       {id: orbitalID, count: true}, 
       function(err, orbitalWithRelations) {
+        debugger;
         var recordRootGetters = orbitalWithRelations.related
               .filter(function (relatedMsg) {
                 return relatedMsg.content.value.type === 'record'
