@@ -24,7 +24,8 @@ var appName = process.env.ssb_appname || 'spaceship_test'
 var appKeys = ssbkeys.loadOrCreateSync(path.join(process.env.HOME, `.${appName}/secret`))
 var appHost = process.env.ssb_host || 'localhost'
 var appPort = process.env[`${appName}_port`] || 8009
-var ssbOpts = { host: appHost, port: appPort, key: appKeys.id }
+var appManifest = JSON.parse(fs.readFileSync(path.join(process.env.HOME, `.${appName}/manifest.json`)))
+var ssbOpts = { host: appHost, port: appPort, key: appKeys.id, manifest: appManifest }
 
 /**
  * @namespace engine 
