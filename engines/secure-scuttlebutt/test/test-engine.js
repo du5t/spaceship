@@ -170,7 +170,6 @@ tape('viewOrbital produces a list of messageRoots', function(t) {
       t.notOk(err)
       var rec = orbitalRecord
       var post = postRecord
-      debugger;
 
       engine.viewOrbital(orbitalRecord.key, function(err, orbitalRecords) {
         t.notOk(err)

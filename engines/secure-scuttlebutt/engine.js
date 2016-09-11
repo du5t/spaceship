@@ -236,8 +236,6 @@ engine.createRecord = function(orbital, type, links, content, keypair, callback)
     ssbRecord.links instanceof Array ? 
       ssbRecord.links.push(orbitalLink) :
       ssbRecord.links = [orbitalLink]
-
-    debugger;
   }
 
   ssbRecord.channel = orbital ? orbital.id : undefined
