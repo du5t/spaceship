@@ -133,10 +133,10 @@ tape('decryptRecord decrypts a record known to be addressed to self', function (
             t.notOk(err)
 
             t.ok(plaintextRecord)
-            t.equal(plaintextRecord.value.content.type, 'orbital')
-            t.ok(plaintextRecord.value.content.residents instanceof Array)
+            t.equal(plaintextRecord.type, 'orbital')
+            t.ok(plaintextRecord.residents instanceof Array)
             // FIXME: this will fail i18n
-            t.equal(plaintextRecord.value.content.content, 
+            t.equal(plaintextRecord.content, 
                     'Orbital test-orbital2 constructed!')
             t.end()            
           })
