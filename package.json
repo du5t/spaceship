@@ -28,6 +28,7 @@
   "dependencies": {
     "jsonfile": "^2.2.3",
     "patchwork-threads": "^2.0.0",
+    "pull-stream": "^3.4.5",
     "run-parallel": "^1.1.4",
     "ssb-client": "^3.0.0",
     "ssb-keys": "^4.0.10",

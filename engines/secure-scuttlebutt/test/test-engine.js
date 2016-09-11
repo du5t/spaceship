@@ -168,30 +168,118 @@ tape('viewOrbital produces a list of messageRoots', function(t) {
     t.notOk(err)
     engine.createRecord(orbitalRecord, 'post', null, { text:'test post' }, function(err, postRecord) {
       t.notOk(err)
-      var rec = orbitalRecord
-      var post = postRecord
 
-      engine.viewOrbital(orbitalRecord.key, function(err, orbitalRecords) {
+      engine.viewOrbital(orbitalRecord.key, true, function(err, orbitalRecords) {
         t.notOk(err)
         t.ok(orbitalRecords)
-        t.end()
+        
+        engine.decryptRecord(orbitalRecords[0], function(err, plaintextRecord) {
+          t.notOk(err)
+          var rec = orbitalRecord
+          t.ok(plaintextRecord.links.map(link => link.link).includes(rec.key))
+          t.end()
+        })
+
       })
     })
   })
 })
 
-// tape('hailOrbital sends a private message to its residents', function(t) {
-// 
-// })
-// 
-// tape('inviteTraveller sends a private message to its residents', function(t) {
-// 
-// })
-// 
-// tape('emigrateOrbital', function(t) {
-// 
-// })
-// 
-// tape('deportResident', function(t) {
-// 
-// })
+tape('hailOrbital sends a private message to its residents', function(t) {
+  engine.createIdentifier(true, function(err, aliceKeys) {
+    t.notOk(err)
+    engine.createOrbital('test-orbital4', [aliceKeys.public],  null, true, function(err, orbitalRecord) {
+      t.notOk(err)
+      engine.hailOrbital(orbitalRecord, { text: 'hello' }, function(err, record) {
+        t.notOk(err)
+        t.ok(record)
+        // if encrypted, content will be cyphertext
+        t.equal(typeof record.value.content, 'string')
+        engine.decryptRecord(record, function(err, plaintextRecord) {
+          t.notOk(err)
+          var rec = orbitalRecord
+
+          t.deepEqual(plaintextRecord.recps, rec.value.content.residents)
+          t.end()
+        })
+      })
+    })      
+  })
+})
+
+tape('inviteTraveller sends a private message to the inviting orbital\'s residents', function(t) {
+  engine.createIdentifier(true, function(err, aliceKeys) {
+    t.notOk(err)
+    engine.createIdentifier(true, function(err, bobKeys) {
+      t.notOk(err)
+      engine.createOrbital('test-orbital4', [aliceKeys.public],  null, true, function(err, orbitalRecord) {
+        t.notOk(err)
+        engine.inviteTraveller(bobKeys.public, orbitalRecord, { text: 'introducing bob' }, function(err, record) {
+          t.notOk(err)
+          t.ok(record)
+          // if encrypted, content will be cyphertext
+          t.equal(typeof record.value.content, 'string')
+          engine.decryptRecord(record, function(err, plaintextRecord) {
+            t.notOk(err)
+            var rec = orbitalRecord
+
+            t.deepEqual(plaintextRecord.recps, rec.value.content.residents)
+            t.end()
+          })
+        })
+      })
+    })
+  })
+})
+ 
+tape('emigrateOrbital sends a private message to the leaving orbital\'s residents', function(t) {
+  engine.createIdentifier(true, function(err, aliceKeys) {
+    t.notOk(err)
+    engine.createOrbital('test-orbital4', [aliceKeys.public],  null, true, function(err, orbitalRecord) {
+      t.notOk(err)
+      engine.hailOrbital(orbitalRecord, { text: 'bye' }, function(err, record) {
+        t.notOk(err)
+        t.ok(record)
+        // if encrypted, content will be cyphertext
+        t.equal(typeof record.value.content, 'string')
+        engine.decryptRecord(record, function(err, plaintextRecord) {
+          t.notOk(err)
+          var rec = orbitalRecord
+
+          t.deepEqual(plaintextRecord.recps, rec.value.content.residents)
+          t.end()
+        })
+      })
+    })
+  })
+})
+
+tape('deportResident sends a private message to the leaving orbital\'s residents excepting the deportee', function(t) {
+  engine.createIdentifier(true, function(err, aliceKeys) {
+    t.notOk(err)
+
+    engine.createIdentifier(true, function(err, bobKeys) {
+      t.notOk(err)
+
+      engine.createOrbital('test-orbital4', [aliceKeys.public, bobKeys.public],  null, true, function(err, orbitalRecord) {
+        t.notOk(err)
+        var residentsWithoutBob = orbitalRecord.value.content.residents.slice()
+        residentsWithoutBob
+          .splice(residentsWithoutBob.findIndex(recp => recp === bobKeys.public), 1)
+
+        engine.deportResident(bobKeys.public, orbitalRecord, { text: 'bob is mean' }, function(err, record) {
+          t.notOk(err)
+          t.ok(record)
+          // if encrypted, content will be cyphertext
+          t.equal(typeof record.value.content, 'string')
+
+          engine.decryptRecord(record, function(err, plaintextRecord) {
+            t.notOk(err)
+            t.deepEqual(plaintextRecord.recps, residentsWithoutBob)
+            t.end()
+          })
+        })
+      })
+    })
+  })
+})

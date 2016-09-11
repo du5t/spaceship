@@ -11,6 +11,7 @@ var jsonfile           = require('jsonfile')
 var VerEx              = require('verbal-expressions')
 var parallel           = require('run-parallel')
 var uuid               = require('uuid')
+var pull               = require('pull-stream')
 
 var ssbClient          = require('ssb-client')
 var ssbkeys            = require('ssb-keys')
@@ -243,7 +244,11 @@ engine.createRecord = function(orbital, type, links, content, keypair, callback)
 
   if (orbital) {
     if (orbital.value && orbital.value.content && orbital.value.content.residents) {
-      ssbRecord.recps = ssbRecord.recps.concat(orbital.value.content.residents)
+      if (orbital.value.content.residents.includes(appKeys.public)) {
+        ssbRecord.recps = orbital.value.content.residents
+      } else {
+        ssbRecord.recps = ssbRecord.recps.concat(orbital.value.content.residents)
+      }
     } else {
       callback(
         new Error(
@@ -316,6 +321,8 @@ engine.decryptRecord = function(record, callback) {
     if (err) callback(err)
     else if (record && record.value && record.value.content) { 
       sbot.private.unbox(record.value.content, callback)
+    } else if (record && record.content) {
+      sbot.private.unbox(record.content, callback)
     } else {
       callback(
         new Error(
@@ -438,8 +445,8 @@ engine.createOrbital = function(name, invitees, agreement, announce, callback) {
 /**
  * function to collect a digest of records rooted in an orbital.
  * @param {string} orbitalID - ID of the orbital record.
- * @param {boolean} fetchActual - whether or not to insist on the actual record,
- * not just the ID
+ * @param {boolean} fetchActual - (optional) whether or not to insist on the
+ * actual record, not just the ID
  * @param {function} callback - err-back to handle the result.
  * @memberof engine
 */
@@ -454,38 +461,33 @@ engine.viewOrbital = function(orbitalID, fetchActual, callback) {
   }
 
   engine.clientCall(function(err, sbot) {
-    sbot.relatedMessages(
-      {id: orbitalID, count: true}, function(err, orbitalWithRelated) {
-      if (err) { callback(err) }
-      else if (!Object.hasOwnProperty(orbitalWithRelated)) {
-        callback(
-          new Error(`relatedMessages didn't get anything for this orbital.`))
-      } else {
+    var links = sbot.links({dest: orbitalID})
 
+    pull(links, pull.collect(function(err, linkedMsgs) {
+      if (err) { callback(err) }
+      else {
+        
         // FIXME: this function is veeeery inefficient, i think. it fetches
         // *every* record in an orbital and traverses all of them back to their
         // roots, which will probably be not unique at all.
-        var recordIDGetters = orbitalWithRelated.related
-              .filter(function (relatedMsg) {
-                return relatedMsg.content.value.type === 'record'
-              })
+        var rootIDGetters = linkedMsgs
               .map(function(relatedRecord) {
                 return function(callback) {
                   engine.clientCall(function(err, sbot) {
                     if (err) { callback(err) }
-                    else { patchworkThreadLib.fetchThreadRootID(sbot, relatedRecord, callback) }
+                    else { patchworkThreadLib.fetchThreadRootID(sbot, relatedRecord.key, callback) }
                   })
                 }
               })
         
-        parallel(recordIDGetters, function(err, rootIDs) {
+        parallel(rootIDGetters, function(err, rootIDs) {
           if (err) callback(err)
           else {
             const uniqIDs = new Set(rootIDs.slice())
             // get message for each
             
             if (fetchActual) {
-              const recordRootGetters = uniqIDs.map(function(recordID) {
+              const recordRootGetters = Array.from(uniqIDs).map(function(recordID) {
                 return function(callback) {
                   engine.clientCall(function(err, sbot) {
                     sbot.get(recordID, callback)
@@ -503,12 +505,12 @@ engine.viewOrbital = function(orbitalID, fetchActual, callback) {
                 }
               })
             } else {
-              callback(null, uniqIDs)
+              callback(null, Array.from(uniqIDs))
             }
           }
         })
       }    
-    })
+    }))
   })
 }
 
@@ -529,13 +531,13 @@ engine.hailOrbital = function(orbital, intro, callback) {
    */
   var hail     = {}
   hail.type    = 'hail'
-  hail.recps   = orbital.residents
+  hail.recps   = orbital.value.content.residents
   hail.content = intro
-  
+
   engine.clientCall(function (err, sbot) {
     if (err) callback(err)
     
-    else sbot.publish(hail, callback)
+    else sbot.private.publish(hail, orbital.value.content.residents, callback)
   })
 }
 
@@ -551,13 +553,13 @@ engine.hailOrbital = function(orbital, intro, callback) {
 engine.inviteTraveller = function(traveller, orbital, intro, callback) {
   var invite     = {}
   invite.type    = 'invite'
-  invite.recps   = orbital.residents
+  invite.recps   = orbital.value.content.residents
   invite.content = intro
 
   engine.clientCall(function (err, sbot) {
     if (err) callback(err)
     
-    else sbot.publish(invite, callback)
+    else sbot.private.publish(invite, orbital.value.content.residents, callback)
   })
 }
 
@@ -576,13 +578,13 @@ engine.emigrateOrbital = function(orbital, outro, callback) {
    */
   var farewell     = {}
   farewell.type    = 'emigration'
-  farewell.recps   = orbital.residents
+  farewell.recps   = orbital.value.content.residents
   farewell.content = outro
   
   engine.clientCall(function (err, sbot) {
     if (err) callback(err)
     
-    else sbot.publish(farewell, callback)
+    else sbot.private.publish(farewell, orbital.value.content.residents, callback)
   })
 }
 
@@ -598,13 +600,16 @@ engine.emigrateOrbital = function(orbital, outro, callback) {
 engine.deportResident = function(traveller, orbital, justification, callback) {
   var rejection     = {}
   rejection.type    = 'rejection'
-  rejection.recps   = orbital.residents
+  rejection.recps   = orbital.value.content.residents
+  // remove the traveller's ID from message recipient
+  rejection.recps
+    .splice(rejection.recps.findIndex(recp => recp === traveller), 1)
   rejection.content = justification
 
   engine.clientCall(function (err, sbot) {
     if (err) callback(err)
     
-    else sbot.publish(rejection, callback)
+    else sbot.private.publish(rejection, orbital.value.content.residents, callback)
   })
 }
 
