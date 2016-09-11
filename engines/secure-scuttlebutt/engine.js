@@ -386,6 +386,11 @@ engine.createOrbital = function(name, invitees, agreement, announce, callback) {
   ssbOrbital.channel     = name
   ssbOrbital.residents   = invitees.includes(appKeys.public) ? 
     invitees : invitees.concat(appKeys.public)
+
+  ssbOrbital.residents = ssbOrbital.residents.map(function(id) {
+    return '@'.concat(id)
+  })
+
   ssbOrbital.type        = 'orbital'
   ssbOrbital.agreement   = agreement
 
@@ -400,6 +405,9 @@ engine.createOrbital = function(name, invitees, agreement, announce, callback) {
   } else {
     // manifest the orbital as a mere list of recipients
     ssbOrbital.agreement  = agreement
+
+    console.log("my public key: ", appKeys.public)
+    console.log("recipients: ", ssbOrbital.residents)
 
     ssbClient(function (err, sbot) {
       if (err) callback(err)
