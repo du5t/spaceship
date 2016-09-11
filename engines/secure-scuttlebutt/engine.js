@@ -452,14 +452,19 @@ engine.viewOrbital = function(orbitalID, fetchActual, callback) {
     callback = fetchActual
     fetchActual = false
   }
-  
-  function makeGetter(fetchActual, callback) {
-    return function(err, orbitalWithRelated) {
+
+  engine.clientCall(function(err, sbot) {
+    sbot.relatedMessages(
+      {id: orbitalID, count: true}, function(err, orbitalWithRelated) {
       if (err) { callback(err) }
       else if (!Object.hasOwnProperty(orbitalWithRelated)) {
         callback(
           new Error(`relatedMessages didn't get anything for this orbital.`))
       } else {
+
+        // FIXME: this function is veeeery inefficient, i think. it fetches
+        // *every* record in an orbital and traverses all of them back to their
+        // roots, which will probably be not unique at all.
         var recordIDGetters = orbitalWithRelated.related
               .filter(function (relatedMsg) {
                 return relatedMsg.content.value.type === 'record'
@@ -503,14 +508,7 @@ engine.viewOrbital = function(orbitalID, fetchActual, callback) {
           }
         })
       }    
-    }
-  }
-  
-  const getRelatedIDs = makeGetter(fetchActual, callback)
-
-  engine.clientCall(function(err, sbot) {
-    sbot.relatedMessages(
-      {id: orbitalID, count: true}, getRelatedIDs)
+    })
   })
 }
 
