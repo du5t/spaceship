@@ -1,6 +1,13 @@
 var tape      = require('tape')
-
 var engine    = require('../engine')
+
+function pluck(prop, arr) {
+  return arr.map(item => item[prop])
+}
+
+tape.onFinish(function() { 
+  process.exit(0)
+})
 
 tape('createIdentifier creates an ssb keypair', function(t) {
   t.plan(3)
@@ -55,14 +62,6 @@ tape('createRecord creates a record and brings it into the tree', function(t) {
                       })
 })
 
-// tape('createRecord with recipients creates a privately addressed record', function(t) {
-//   t.plan(2)
-//   engine.createRecord(null, 'post', null, { text:'test post' },
-//                       function(err, record) {
-//                         t.notOk(err)
-//                         t.ok(record)
-//                       })
-// })
 
 
 tape('viewRecord finds a record', function(t) {
@@ -100,50 +99,98 @@ tape('createOrbital creates a new orbital record, publishes it openly when publi
   })
 })
 
-tape('createOrbital produces an encrypted orbital record sent only to invitees when private', function (t) {
+tape('createOrbital produces an orbital record encrypted to self + invitees when private', function (t) {
   engine.createIdentifier(true, function(err, aliceKeys) {
     engine.createIdentifier(true, function(err, bobKeys) {
       engine.createIdentifier(true, function(err, cristaKeys) {
         const invitees = pluck('public', [aliceKeys, bobKeys, cristaKeys])
         
-        engine.createOrbital('test-orbital2',
-                             invitees, 
-                             null, 
-                             false, 
-                             function(err, record) {
-                               // FIXME: this is not coming up secret yet
-                               t.notOk(err)
-                               t.ok(record)
-                               record.value.content.recps.map(recp => {
-                                 t.ok(invitees.includes(recp))
-                               })
-                               t.equal(record.value.content.recps.length, 3)
-                               t.equal(record.value.content.type, 'orbital')
-                               // FIXME: this will fail i18n
-                               t.equal(record.value.content.content, 
-                                       'Orbital test-orbital2 constructed!')
-                               t.end()
-                             })
-
-      })
-    })
-  })
-})
-
-tape('viewOrbital produces a list of messageRoots', function(t) {
-  engine.createOrbital('test-orbital3', [], null, true, function(err, orbitalRecord) {
-    engine.createRecord(orbitalRecord.key, 'post', null, { text:'test post' }, function(err, postRecord) {
-      // NOTE: is there no way to make this better?
-      engine.viewRecord(orbitalRecord.key, function(err, updatedOrbital) {
-        t.notOk(err)
-        var rec = orbitalRecord
-        var post = postRecord
-        debugger
-        engine.viewOrbital(updatedOrbital.key, function(err, orbitalRecords) {
+        engine.createOrbital('test-orbital2', invitees, null, false, function(err, record) {
           t.notOk(err)
-          t.ok(orbitalRecords)
+          t.ok(record)
+          // if encrypted, content will be cyphertext
+          t.equal(typeof record.value.content, 'string')
+          t.end()
         })
       })
     })
   })
 })
+
+// tape('decryptRecord decrypts a record known to be addressed to self', function (t) {
+//   engine.createIdentifier(true, function(err, aliceKeys) {
+//     engine.createIdentifier(true, function(err, bobKeys) {
+//       engine.createIdentifier(true, function(err, cristaKeys) {
+//         const invitees = pluck('public', [aliceKeys, bobKeys, cristaKeys])
+//         
+//         engine.createOrbital('test-orbital2', invitees, null, false, function(err, record) {
+//           t.notOk(err)
+//           t.ok(record)
+//           // if encrypted, content will be cyphertext
+//           t.equal(typeof record.value.content, 'string')
+// 
+//           engine.decryptRecord(record, function(err, plaintextRecord) {
+//             t.notOk(err)
+// 
+//             t.ok(plaintextRecord)
+//             t.equal(plaintextRecord.value.content.type, 'orbital')
+//             t.ok(plaintextRecord.value.content.residents instanceof Array)
+//             // FIXME: this will fail i18n
+//             t.equal(plaintextRecord.value.content.content, 
+//                     'Orbital test-orbital2 constructed!')
+//             t.end()            
+//           })
+//         })
+//       })
+//     })
+//   })
+// })
+
+tape('createRecord with orbital creates a privately addressed record', function(t) {  
+  engine.createIdentifier(true, function(err, aliceKeys) {
+    t.notOk(err)
+    engine.createOrbital('test-orbital2', [aliceKeys.public],  null, true, function(err, orbitalRecord) {
+      t.notOk(err)
+      engine.createRecord(orbitalRecord, 'post', null, { text:'test post' }, function(err, record) {
+        t.notOk(err)
+        t.ok(record)
+        // if encrypted, content will be cyphertext
+        t.equal(typeof record.value.content, 'string')
+        t.end()
+      })
+    })      
+  })
+})
+
+tape('viewOrbital produces a list of messageRoots', function(t) {
+  engine.createOrbital('test-orbital3', [], null, true, function(err, orbitalRecord) {
+    t.notOk(err)
+    engine.createRecord(orbitalRecord, 'post', null, { text:'test post' }, function(err, postRecord) {
+      t.notOk(err)
+      var rec = orbitalRecord
+      var post = postRecord
+
+      engine.viewOrbital(orbitalRecord.key, function(err, orbitalRecords) {
+        t.notOk(err)
+        t.ok(orbitalRecords)
+        t.end()
+      })
+    })
+  })
+})
+
+// tape('hailOrbital sends a private message to its residents', function(t) {
+// 
+// })
+// 
+// tape('inviteTraveller sends a private message to its residents', function(t) {
+// 
+// })
+// 
+// tape('emigrateOrbital', function(t) {
+// 
+// })
+// 
+// tape('deportResident', function(t) {
+// 
+// })

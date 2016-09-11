@@ -47,7 +47,7 @@ var ssbOpts = { host: appHost, port: appPort, key: appKeys.id, manifest: appMani
  * @prop {function} enterGalaxy - NOT IMPLEMENTED
  * @prop {function} leaveGalaxy - NOT IMPLEMENTED
 */
-var engine = {};
+var engine = {}
 
 /**
  * weird function to call ssbClient more comfortably.
@@ -211,7 +211,7 @@ engine.importData = function() {
 
 /**
  * function for creating a record in the galaxy.
- * @param {string} orbital - ID of the orbital the record belongs to.
+ * @param {string} orbital - The orbital the record belongs to.
  * @param {string} type - metadata describing the record type, i.e. "post",
  * "vote", etc.
  * @param {Array} links - array of ID strings, indicating other records this one
@@ -231,19 +231,36 @@ engine.createRecord = function(orbital, type, links, content, keypair, callback)
   ssbRecord.type    = type
   ssbRecord.links   = links ? links : null
   ssbRecord.channel = orbital ? orbital.id : undefined
-  ssbRecord.recps   = orbital ? orbital.residents : undefined
+  ssbRecord.recps   = [appKeys.public]
+
+  if (orbital) {
+    if (orbital.value && orbital.value.content && orbital.value.content.residents) {
+      ssbRecord.recps = ssbRecord.recps.concat(orbital.value.content.residents)
+    } else {
+      callback(
+        new Error(
+          `createRecord was passed a malformed orbital record: ${orbital}`))
+    }
+  }
+
   ssbRecord.content = content
 
   var publish = function (err, sbot) {
     if (err) callback(err)
     
-    // publish a message
-    sbot.publish(ssbRecord, callback)
+    else if (orbital) {
+      if (ssbRecord.recps.length === 1) {
+        console.warn("warning: this orbital has no residents other than you, according to your records.")
+      }
+      // publish a message
+      sbot.private.publish(ssbRecord, ssbRecord.recps, callback)
       // msg.key           == hash(msg.value)
       // msg.value.author  == your id
       // msg.value.content == { type: 'post', text: 'My First Post!' }
       // ...
-    
+    } else {
+      sbot.publish(ssbRecord, callback)
+    }
   }
   var ssbClientArgs = []
   if (keypair) { ssbClientArgs.push(keypair) }
@@ -261,12 +278,45 @@ engine.createRecord = function(orbital, type, links, content, keypair, callback)
 engine.viewRecord = function(recordID, callback) {
   // TODO: refactor this
   var view = function (err, sbot) {
-    if (err) callback(err)
-    sbot.get(recordID, callback)
+    if (err) callback(err)    
+    else {
+      sbot.get(recordID, function(err, record) {
+        if (err) callback(err)
+        else if (typeof record.content === 'string') {
+          // private msg case
+          engine.decryptRecord(record, callback)  
+        } else {
+          callback(null, record)
+        }      
+      })       
+    }
   }
   var ssbClientArgs = []
   ssbClientArgs.push(view)
 
+  engine.clientCall.apply(this, ssbClientArgs)
+}
+
+/**
+ * function to decrypt a record if encrypted.
+ * @param {object} record - a well-formed scuttlebot record.
+ * @param {function} callback - err-back to be called with the result.
+ * @memberof engine
+ */
+engine.decryptRecord = function(record, callback) {
+  var decrypt = function (err, sbot) {
+    if (err) callback(err)
+    else if (record && record.value && record.value.content) { 
+      sbot.private.unbox(record, callback)
+    } else {
+      callback(
+        new Error(
+          `decryptRecord was passed a malformed record: ${JSON.stringify(record)}`))
+    }
+  }
+  var ssbClientArgs = []
+  ssbClientArgs.push(decrypt)
+  
   engine.clientCall.apply(this, ssbClientArgs)
 }
 
@@ -332,9 +382,10 @@ engine.editRecord = function(links, origMsg, revisionID, revisionContent, callba
 engine.createOrbital = function(name, invitees, agreement, announce, callback) {
 //  const { announce, openResidency, governmentType, dictator } = agreement
   var ssbOrbital = {}
-  ssbOrbital.content = 'Orbital '.concat(name).concat(' constructed!')
-  ssbOrbital.channel    = name
-  ssbOrbital.residents  = invitees
+  ssbOrbital.content     = 'Orbital '.concat(name).concat(' constructed!')
+  ssbOrbital.channel     = name
+  ssbOrbital.residents   = invitees.includes(appKeys.public) ? 
+    invitees : invitees.concat(appKeys.public)
   ssbOrbital.type        = 'orbital'
   ssbOrbital.agreement   = agreement
 
@@ -348,13 +399,12 @@ engine.createOrbital = function(name, invitees, agreement, announce, callback) {
     })    
   } else {
     // manifest the orbital as a mere list of recipients
-    ssbOrbital.recps      = invitees
     ssbOrbital.agreement  = agreement
-    
+
     ssbClient(function (err, sbot) {
       if (err) callback(err)
-      
-      else sbot.publish(ssbOrbital, callback)
+
+      else sbot.private.publish(ssbOrbital, ssbOrbital.residents, callback)
     })
   }
 }
@@ -372,39 +422,70 @@ engine.viewOrbital = function(orbitalID, fetchActual, callback) {
    * fetches all of the record heads in an orbital for easy viewing
    * 
    */
-  ssbClient(function(err, sbot) {
-    sbot.relatedMessages(
-      {id: orbitalID, count: true}, 
-      function(err, orbitalWithRelations) {
-        debugger;
-        var recordRootGetters = orbitalWithRelations.related
+  if (typeof fetchActual === 'function') {
+    callback = fetchActual
+    fetchActual = false
+  }
+  
+  function makeGetter(fetchActual, callback) {
+    return function(err, orbitalWithRelated) {
+      if (err) { callback(err) }
+      else if (!Object.hasOwnProperty(orbitalWithRelated)) {
+        callback(
+          new Error(`relatedMessages didn't get anything for this orbital.`))
+      } else {
+        var recordIDGetters = orbitalWithRelated.related
               .filter(function (relatedMsg) {
                 return relatedMsg.content.value.type === 'record'
               })
               .map(function(relatedRecord) {
                 return function(callback) {
-                  patchworkThreadLib.fetchThreadRootID(sbot, relatedRecord, callback)
+                  ssbClient(function(err, sbot) {
+                    if (err) { callback(err) }
+                    else { patchworkThreadLib.fetchThreadRootID(sbot, relatedRecord, callback) }
+                  })
                 }
               })
-        parallel(recordRootGetters, function(err, rootIDs) {
+        
+        parallel(recordIDGetters, function(err, rootIDs) {
           if (err) callback(err)
           else {
             const uniqIDs = new Set(rootIDs.slice())
             // get message for each
-            uniqIDs.map(function(recordID) {
-              
-            })
             
-            // sort by date
-
-            // callback
-            callback(null, recordRoots)
+            if (fetchActual) {
+              const recordRootGetters = uniqIDs.map(function(recordID) {
+                return function(callback) {
+                  ssbClient(function(err, sbot) {
+                    sbot.get(recordID, callback)
+                  })
+                }
+              })
+              
+              parallel(recordRootGetters, function(err, roots) {
+                if (err) callback(err)
+                else { 
+                  callback(null, roots.sort(function(msg1, msg2) {
+                    // sort ascending by date
+                    return msg1.value.timestamp < msg2.value.timestamp
+                  }))
+                }
+              })
+            } else {
+              callback(null, uniqIDs)
+            }
           }
         })
-      })
-
-  })
+      }    
+    }
+  }
   
+  const getRelatedIDs = makeGetter(fetchActual, callback)
+
+  ssbClient(function(err, sbot) {
+    sbot.relatedMessages(
+      {id: orbitalID, count: true}, getRelatedIDs)
+  })
 }
 
 /**
@@ -419,7 +500,8 @@ engine.hailOrbital = function(orbital, intro, callback) {
   /* in ssb's case, it seems good enough to hit everyone in the orbital with a
    * hail message
    * 
-   * only works on discoverable orbitals (for good reason)
+   * only works on discoverable orbitals (for good reason), or orbitals whose id
+   * you know
    */
   var hail     = {}
   hail.type    = 'hail'
