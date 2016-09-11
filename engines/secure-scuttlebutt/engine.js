@@ -229,7 +229,17 @@ engine.createRecord = function(orbital, type, links, content, keypair, callback)
   
   var ssbRecord = {}
   ssbRecord.type    = type
-  ssbRecord.links   = links ? links : null
+  ssbRecord.links   = links ? links.map(ssbMsgLib.link) : null
+
+  if (orbital) { 
+    var orbitalLink = ssbMsgLib.link(orbital.key)
+    ssbRecord.links instanceof Array ? 
+      ssbRecord.links.push(orbitalLink) :
+      ssbRecord.links = [orbitalLink]
+
+    debugger;
+  }
+
   ssbRecord.channel = orbital ? orbital.id : undefined
   ssbRecord.recps   = [appKeys.public]
 
@@ -333,10 +343,16 @@ engine.decryptRecord = function(record, callback) {
  * @param {object} origMsg - the original record to revise.
  * @param {string} revisionID - the ID of the record to revise. can be null.
  * @param {string} revisionContent - the revised content
+ * @param {string} keypair - the ID keypair to use as the author of the record.
  * @param {function} callback - err-back to call with the resulting record.
  * @memberof engine
 */
-engine.editRecord = function(links, origMsg, revisionID, revisionContent, callback) {
+engine.editRecord = function(links, origMsg, revisionID, revisionContent, keypair, callback) {
+  if (typeof keypair === 'function') {
+    callback = keypair
+    keypair = undefined
+  }
+
   var ssbRecord = {}
   ssbRecord.type            = 'post-edit'
   ssbRecord.links           = { links }
@@ -351,7 +367,8 @@ engine.editRecord = function(links, origMsg, revisionID, revisionContent, callba
     ssbRecord.revisionRoot = utils.ssbLink(origMsg.key)
   }
 
-  ssbClient(function (err, sbot) {
+  
+  var publish = function (err, sbot) {
     if (err) callback(err)
     
     else sbot.publish(ssbRecord, callback)
@@ -359,8 +376,13 @@ engine.editRecord = function(links, origMsg, revisionID, revisionContent, callba
       // msg.value.author  == your id
       // msg.value.content == { type: 'post', text: 'My First Post!' }
       // ...
-    
-  })
+  }
+
+  var ssbClientArgs = []
+  if (keypair) { ssbClientArgs.push(keypair) }
+  ssbClientArgs.push(publish)
+
+  engine.clientCall.apply(this, ssbClientArgs)
 }
 
 /*
@@ -390,24 +412,29 @@ engine.createOrbital = function(name, invitees, agreement, announce, callback) {
   ssbOrbital.type        = 'orbital'
   ssbOrbital.agreement   = agreement
 
+  var create;
+
   if (announce === undefined || announce === true) {
     // publicly discoverable case--leave a replicable record
-    ssbClient(function (err, sbot) {
+    create = function (err, sbot) {
       if (err) callback(err)
       
       // publish a message
       sbot.publish(ssbOrbital, callback)
-    })    
+    }
   } else {
     // manifest the orbital as a mere list of recipients
     ssbOrbital.agreement  = agreement
 
-    ssbClient(function (err, sbot) {
+    create = function(err, sbot) {
       if (err) callback(err)
 
       else sbot.private.publish(ssbOrbital, ssbOrbital.residents, callback)
-    })
+    }
   }
+  
+  // TODO add keypair
+  engine.clientCall.apply(this, [create])
 }
 
 /**
@@ -441,7 +468,7 @@ engine.viewOrbital = function(orbitalID, fetchActual, callback) {
               })
               .map(function(relatedRecord) {
                 return function(callback) {
-                  ssbClient(function(err, sbot) {
+                  engine.clientCall(function(err, sbot) {
                     if (err) { callback(err) }
                     else { patchworkThreadLib.fetchThreadRootID(sbot, relatedRecord, callback) }
                   })
@@ -457,7 +484,7 @@ engine.viewOrbital = function(orbitalID, fetchActual, callback) {
             if (fetchActual) {
               const recordRootGetters = uniqIDs.map(function(recordID) {
                 return function(callback) {
-                  ssbClient(function(err, sbot) {
+                  engine.clientCall(function(err, sbot) {
                     sbot.get(recordID, callback)
                   })
                 }
@@ -483,7 +510,7 @@ engine.viewOrbital = function(orbitalID, fetchActual, callback) {
   
   const getRelatedIDs = makeGetter(fetchActual, callback)
 
-  ssbClient(function(err, sbot) {
+  engine.clientCall(function(err, sbot) {
     sbot.relatedMessages(
       {id: orbitalID, count: true}, getRelatedIDs)
   })
@@ -509,7 +536,7 @@ engine.hailOrbital = function(orbital, intro, callback) {
   hail.recps   = orbital.residents
   hail.content = intro
   
-  ssbClient(function (err, sbot) {
+  engine.clientCall(function (err, sbot) {
     if (err) callback(err)
     
     else sbot.publish(hail, callback)
@@ -531,7 +558,7 @@ engine.inviteTraveller = function(traveller, orbital, intro, callback) {
   invite.recps   = orbital.residents
   invite.content = intro
 
-  ssbClient(function (err, sbot) {
+  engine.clientCall(function (err, sbot) {
     if (err) callback(err)
     
     else sbot.publish(invite, callback)
@@ -556,7 +583,7 @@ engine.emigrateOrbital = function(orbital, outro, callback) {
   farewell.recps   = orbital.residents
   farewell.content = outro
   
-  ssbClient(function (err, sbot) {
+  engine.clientCall(function (err, sbot) {
     if (err) callback(err)
     
     else sbot.publish(farewell, callback)
@@ -578,7 +605,7 @@ engine.deportResident = function(traveller, orbital, justification, callback) {
   rejection.recps   = orbital.residents
   rejection.content = justification
 
-  ssbClient(function (err, sbot) {
+  engine.clientCall(function (err, sbot) {
     if (err) callback(err)
     
     else sbot.publish(rejection, callback)
