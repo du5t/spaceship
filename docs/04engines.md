@@ -4,8 +4,8 @@ following the [schema](./spaceship-schema.md), a spaceship needs an engine to
 travel a cypherspace galaxy. an engine is constructed from a set of functions
 that realise the spaceship schema. this resembles an API. unlike an API though,
 these requirements are not set out by a central server and presented to
-clients--spaceships own their engines and builders may customise them as they
-like.
+clients--spaceships own their engines and technicians/mechanics may customise
+them as they like.
 
 what we present here is a limited set of functions a codebase should provide to
 properly function as a spaceship engine. not all of these functions need
@@ -13,12 +13,12 @@ implementing on their own--many of them are easily realised as compositions.
 
 general remarks:
 
-- all spaceship identifiers (public keys) must be signed with the appropriate
+- spaceship identifiers (public keys) must be signed with the appropriate
   private key or similar attestation, for every request.
 - where a function returns no output (for example, if it is used to modify
   galactic or local state), it's best to return information about the result.
 
-## engine spec
+## spec details
 
 ### pilot/spaceship internal functions
 
@@ -69,9 +69,9 @@ filesystem, and makes them available to `listIdentifiers()`.
 
 #### notes
 
-- assuming the hardware substrate is running something like windows/posix,
-identifying data should be stored in
-[XDG standard directories](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html).
+- assuming the spaceship's hardware substrate is running something like
+  windows/posix, identifying data should be stored in
+  [XDG standard directories](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html).
 - asymmetric-key cryptography is expected to be the most reliable form of
   identifier for the foreseeable future, but any implementation that combines a
   pilot's secret knowledge (i.e., a passphrase) with a robust stored secret (a
@@ -81,6 +81,7 @@ identifying data should be stored in
 
 - createRecord
 - editRecord
+- viewRecord
 
 #### createRecord
 
@@ -104,6 +105,14 @@ indicating that it's an edit.
 
 throws an error if the existing record is not known to the spaceship.
 
+#### viewRecord
+
+- input: an ID referencing a record.
+- output: a record object with content, its creator's ID, and recipient IDs if
+  applicable
+
+retrieves a record from the space.
+
 #### notes
 
 - a record link is just the key of a record, namely, a reference.
@@ -111,9 +120,9 @@ throws an error if the existing record is not known to the spaceship.
   deletion.
 - edits may be better encoded as diffs, depending on their content type.
 - any ship may submit record edits. how they are viewed and processed is up to
-  interface convention--an orbital may establish itself as a wiki, and instruct
-  spaceships to accept edits from any pilot. a spaceship may also unilaterally
-  view different edits according to its own policies.
+  interface convention--for example, an orbital may establish itself as a wiki,
+  and instruct spaceships to accept edits from any pilot. a spaceship may also
+  unilaterally view different edits according to its own policies.
 
 ### orbital functions
 
@@ -206,7 +215,7 @@ expulsion of a resident from an orbital.
 #### notes
 
 - hailing an orbital is a good way to check for its existence before trying to
-  create one with similar existential parametres.
+  create one with similar existential parameters.
 - emigrating an orbital is a good way to repudiate a public key, if the
   identifier has been compromised.
 - orbitals are just implicit collections of records, established by

@@ -1,0 +1,44 @@
+{
+  "name": "spaceship",
+  "version": "0.1.0",
+  "description": "a vehicle for cypherspace travel",
+  "main": "index.js",
+  "scripts": {
+    "test": "./test.sh",
+    "doc": "jsdoc -c docs-conf.json -r --verbose -d docs/jsdoc/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/du5t/spaceship.git"
+  },
+  "keywords": [
+    "cypherspace",
+    "swarmlog",
+    "hyperlog",
+    "ssb",
+    "secure-scuttlebutt",
+    "decentralised"
+  ],
+  "author": "du5t",
+  "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/du5t/spaceship/issues"
+  },
+  "homepage": "https://github.com/du5t/spaceship#readme",
+  "dependencies": {
+    "jsonfile": "^2.2.3",
+    "patchwork-threads": "^2.0.0",
+    "pull-stream": "^3.4.5",
+    "run-parallel": "^1.1.4",
+    "ssb-client": "^3.0.0",
+    "ssb-keys": "^4.0.10",
+    "ssb-msgs": "^5.2.0",
+    "uuid": "^2.0.1",
+    "verbal-expressions": "^0.2.1",
+    "xdg-basedir": "^2.0.0"
+  },
+  "devDependencies": {
+    "jsdoc": "^3.4.0",
+    "tape": "^4.4.0"
+  }
+}

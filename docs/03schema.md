@@ -1,15 +1,6 @@
-# spaceship
+# schema
 
-## schema
-
-- pilots/travellers/residents
-- spaceships
-- records/logs
-- orbitals
-- galaxies
-- cypherspace
-
-### travellers, pilots, residents
+## travellers, pilots, residents
 
 travellers are the people of cypherspace--its performative atoms.
 
@@ -24,16 +15,17 @@ travellers and residents pilot spaceships. they transmit messages that identify
 their crafts uniquely whenever they visit orbitals in different galaxies--but
 they choose what to send and where to send it.
 
-### spaceships
+## spaceships
 
 a spaceship is any networked device capable of galactic communication.
 
 **key characteristics:**
 
 - spaceships are the method by which travellers interact with cypherspace. they
-  are the embodiment of a traveler.
+  are the embodiment of a traveler as far as the galaxy is concerned.
 - spaceships have an obligation to relay or mirror records they receive to other
-  parts of the galaxy.
+  parts of the galaxy. (for example, a ship that views the ssb galaxy is also
+  obligated to participate in the gossip protocol that makes it work.)
 
 **design concepts:**
 
@@ -43,7 +35,7 @@ a spaceship is any networked device capable of galactic communication.
   [starbound](http://vignette2.wikia.nocookie.net/starboundgame/images/6/6f/Customizedship.png/revision/latest)
   (and many others).
 
-### records, logs
+## records, logs
 
 a record is a semantically linked, sequenced data set that is useful to
 spaceship pilots. it might be a message thread, a folder of data, or media
@@ -66,7 +58,7 @@ collection (such as a music album).
 - acts of theater (monologues, dialogues, and so on)
 - serialised and one-off productions (webcomics, video dramas, zines)
 
-### orbitals
+## orbitals
 
 **key characteristics:**
 
@@ -77,7 +69,7 @@ collection (such as a music album).
 - no barrier to creation by any traveler
 
 **orbitals** are space colonies. from an social standpoint, they serve as
-bounded, autonomous territories. from an engineering standpoint, this simply
+bounded, autonomous territories. From an engineering standpoint, this simply
 means that they are a set of autonomously determined recipients and policies for
 communication. in other words, they are implicit stores of records. you can
 think of them as generalisations of "channels" in IRC, or "circles"
@@ -111,7 +103,7 @@ creation.
 - IRC channels and their hierarchies of
   [user modes](https://www.alien.net.au/irc/usermodes.html)
 
-### galaxies
+## galaxies
 
 **key characteristics:**
 
@@ -143,21 +135,22 @@ examples of galaxies:
 - twister blockchains
 - freenet networks
 
-### cypherspace
+## cypherspace
 
 cypherspace is the observable universe of galaxies that can be traversed by
 spaceships.
 
 **design concepts:**
 
-- the kriptosfear of iain banks'
+- the *kriptosfear* of iain banks'
   [feersum endjinn](https://en.wikipedia.org/wiki/Feersum_Endjinn)
 - the posthuman editable universe of
   [transistor](https://en.wikipedia.org/wiki/Transistor_(video_game))
 
-## narratives of communication
 
-### orbital
+# narratives of communication
+
+## orbital
 
 orbitals are made up of a specific set of recipients. they have many residents,
 and each orbital can establish rules about how residency is granted.
@@ -168,12 +161,12 @@ but other models and content-types can always be realised.
 records are encrypted with either the public keys of (or record-specific keys
 generated for) each resident.
 
-#### orbital residency
+### orbital residency
 
 the residents of an orbital can read any record posted to an orbital. they have
 input to orbital policy, appearance, and can create records.
 
-##### "inviting-in"
+#### "inviting-in"
 
 drawing from
 [CE 2010s western queer terminology](http://www.musedmagonline.com/2015/04/coming-semantics-reinforce-heterosexism-queer-people-color/),
@@ -206,6 +199,6 @@ hyperlocal in some space (e.g., a city orbital); a spaceship should be able to
 travel from such orbitals to others without committing to replicate all
 orbital-local traffic.
 
-galaxywide broadcasts are of course also possible, but unreliable at
-best. experiments in the centralised internet outside of cypherspace have shown
-them to be deeply problematic also.
+galaxywide broadcasts are of course also possible, but dodgy at
+best. experiments in the centralised internet outside of cypherspace have
+[shown them to be problematic](http://www.theverge.com/2016/2/6/10926816/twitter-employee-experiences-harassment-on-twitter).
