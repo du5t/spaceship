@@ -490,7 +490,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line29">line 29</a>
+        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line31">line 31</a>
     </li></ul></dd>
     
 
@@ -635,7 +635,7 @@ and a callback reference to handle its result.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line73">line 73</a>
+        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line75">line 75</a>
     </li></ul></dd>
     
 
@@ -839,7 +839,7 @@ located.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line91">line 91</a>
+        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line93">line 93</a>
     </li></ul></dd>
     
 
@@ -870,7 +870,7 @@ located.</p></td>
 
     
 
-    <h4 class="name" id=".createOrbital"><span class="type-signature">(static) </span>createOrbital<span class="signature">(name, invitees, agreement, callback)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id=".createOrbital"><span class="type-signature">(static) </span>createOrbital<span class="signature">(name, invitees, agreement, announce, callback)</span><span class="type-signature"></span></h4>
 
     
 
@@ -983,6 +983,30 @@ indicates what agreements the orbital residents follow.</p></td>
 
         <tr>
             
+                <td class="name"><code>announce</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>whether to publicly announce orbital creation. if
+false, invitees will receive private messages from the orbital creator only.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
                 <td class="name"><code>callback</code></td>
             
 
@@ -1040,7 +1064,7 @@ indicates what agreements the orbital residents follow.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line318">line 318</a>
+        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line409">line 409</a>
     </li></ul></dd>
     
 
@@ -1130,7 +1154,7 @@ indicates what agreements the orbital residents follow.</p></td>
 
             
 
-            <td class="description last"><p>ID of the orbital the record belongs to.</p></td>
+            <td class="description last"><p>The orbital the record belongs to.</p></td>
         </tr>
 
     
@@ -1288,7 +1312,161 @@ connects to in some way.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line223">line 223</a>
+        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line225">line 225</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".decryptRecord"><span class="type-signature">(static) </span>decryptRecord<span class="signature">(record, callback)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>function to decrypt a record if encrypted.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>record</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>a well-formed scuttlebot record.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>callback</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>err-back to be called with the result.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line319">line 319</a>
     </li></ul></dd>
     
 
@@ -1489,7 +1667,7 @@ error.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line484">line 484</a>
+        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line600">line 600</a>
     </li></ul></dd>
     
 
@@ -1666,7 +1844,7 @@ error.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line168">line 168</a>
+        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line170">line 170</a>
     </li></ul></dd>
     
 
@@ -1729,7 +1907,7 @@ mismatch.</li>
 
     
 
-    <h4 class="name" id=".editRecord"><span class="type-signature">(static) </span>editRecord<span class="signature">(links, origMsg, revision, callback)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id=".editRecord"><span class="type-signature">(static) </span>editRecord<span class="signature">(links, origMsg, revisionID, revisionContent, keypair, callback)</span><span class="type-signature"></span></h4>
 
     
 
@@ -1738,6 +1916,8 @@ mismatch.</li>
 <div class="description">
     <p>function to edit a record. produces a new record linking back to the record
 it revises, according to ssb schema.</p>
+<p>for the record, here is that schema:</p>
+<p><code>{ type: 'post-edit', text: String, root: MsgLink, revisionRoot: MsgLink, revisionBranch: MsgLink, mentions: Links }</code></p>
 </div>
 
 
@@ -1820,7 +2000,7 @@ usual record.</p></td>
 
         <tr>
             
-                <td class="name"><code>revision</code></td>
+                <td class="name"><code>revisionID</code></td>
             
 
             <td class="type">
@@ -1837,6 +2017,52 @@ usual record.</p></td>
             
 
             <td class="description last"><p>the ID of the record to revise. can be null.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>revisionContent</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the revised content</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>keypair</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the ID keypair to use as the author of the record.</p></td>
         </tr>
 
     
@@ -1900,7 +2126,7 @@ usual record.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line283">line 283</a>
+        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line355">line 355</a>
     </li></ul></dd>
     
 
@@ -2078,7 +2304,7 @@ error.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line458">line 458</a>
+        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line574">line 574</a>
     </li></ul></dd>
     
 
@@ -2245,7 +2471,7 @@ describes which of these things happened, containing the return of above.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line529">line 529</a>
+        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line648">line 648</a>
     </li></ul></dd>
     
 
@@ -2328,7 +2554,7 @@ compression-&gt;encryption. <strong>not implemented</strong></p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line190">line 190</a>
+        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line192">line 192</a>
     </li></ul></dd>
     
 
@@ -2506,7 +2732,7 @@ asking for an invite.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line410">line 410</a>
+        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line525">line 525</a>
     </li></ul></dd>
     
 
@@ -2589,7 +2815,7 @@ implemented</strong></p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line199">line 199</a>
+        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line201">line 201</a>
     </li></ul></dd>
     
 
@@ -2790,7 +3016,7 @@ error.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line437">line 437</a>
+        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line553">line 553</a>
     </li></ul></dd>
     
 
@@ -2952,7 +3178,7 @@ one (i.e., multiplexing case)</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line555">line 555</a>
+        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line674">line 674</a>
     </li></ul></dd>
     
 
@@ -3106,7 +3332,7 @@ one (i.e., multiplexing case)</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line128">line 128</a>
+        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line130">line 130</a>
     </li></ul></dd>
     
 
@@ -3137,7 +3363,7 @@ one (i.e., multiplexing case)</p></td>
 
     
 
-    <h4 class="name" id=".viewOrbital"><span class="type-signature">(static) </span>viewOrbital<span class="signature">(orbitalID, callback)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id=".viewOrbital"><span class="type-signature">(static) </span>viewOrbital<span class="signature">(orbitalID, fetchActual, callback)</span><span class="type-signature"></span></h4>
 
     
 
@@ -3203,6 +3429,30 @@ one (i.e., multiplexing case)</p></td>
 
         <tr>
             
+                <td class="name"><code>fetchActual</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>(optional) whether or not to insist on the
+actual record, not just the ID</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
                 <td class="name"><code>callback</code></td>
             
 
@@ -3260,7 +3510,7 @@ one (i.e., multiplexing case)</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line363">line 363</a>
+        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line453">line 453</a>
     </li></ul></dd>
     
 
@@ -3414,7 +3664,7 @@ one (i.e., multiplexing case)</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line261">line 261</a>
+        <a href="engine.js.html">engine.js</a>, <a href="engine.js.html#line291">line 291</a>
     </li></ul></dd>
     
 
@@ -3462,7 +3712,7 @@ one (i.e., multiplexing case)</p></td>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Sun Aug 07 2016 19:21:27 GMT-0700 (PDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Sun Sep 11 2016 13:20:30 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>
