@@ -89,14 +89,23 @@ tape('editRecord takes a recordID and new content, submits a linked rev', functi
 })
 
 tape('createOrbital creates a new orbital record, publishes it openly when public', function(t) {
-  t.plan(5)
-  engine.createOrbital('test-orbital', [], null, true, function(err, record) {
-    t.notOk(err)
-    t.ok(record)    
-    t.equal(record.value.content.type, 'orbital')
-    t.ok(record.value.content.residents instanceof Array)
-    // FIXME: this will fail i18n
-    t.equal(record.value.content.content, 'Orbital test-orbital constructed!')
+  engine.createIdentifier(true, function(err, aliceKeys) {
+    engine.createIdentifier(true, function(err, bobKeys) {
+      engine.createIdentifier(true, function(err, cristaKeys) {
+        const invitees = pluck('public', [aliceKeys, bobKeys, cristaKeys])
+
+        engine.createOrbital('test-orbital', invitees, null, true, function(err, record) {
+          t.notOk(err)
+          t.ok(record)    
+          t.equal(record.value.content.type, 'orbital')
+          t.ok(record.value.content.residents instanceof Array)
+          // FIXME: this will fail i18n
+          t.equal(record.value.content.content, 'Orbital test-orbital constructed!')
+          t.equal(record.value.content.residents.length, 4)
+          t.end()
+        })
+      })
+    })
   })
 })
 
@@ -111,7 +120,12 @@ tape('createOrbital produces an orbital record encrypted to self + invitees when
           t.ok(record)
           // if encrypted, content will be cyphertext
           t.equal(typeof record.value.content, 'string')
-          t.end()
+
+          engine.decryptRecord(record, function(err, plaintextRecord) {
+            t.notOk(err)
+            t.equal(plaintextRecord.residents.length, 4)            
+            t.end()
+          })
         })
       })
     })

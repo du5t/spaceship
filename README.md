@@ -27,7 +27,7 @@ tl;dr: `npm install; npm run doc; open docs/jsdoc/index.html`
 ## roadmap
 
 - [ ] reference engine implementations in:
-    - [ ] scuttlebot
+    - [x] scuttlebot
     - [ ] hyperdrive/swarmbot
     - [ ] onionspace/tor
     - [ ] hydra
